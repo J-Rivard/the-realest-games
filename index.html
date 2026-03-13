@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Point Collectors Trivia Night</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23006747'/%3E%3Ctext x='16' y='19' font-family='serif' font-size='11' font-weight='bold' text-anchor='middle' fill='%23cfc493' transform='rotate(38,16,16)'%3EOTR%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ── APP WINDOW HEADER ── -->
+<header>
+  <div class="header-titlebar">
+    <span class="header-titlebar-icon">🏆</span>
+    <div class="header-titlebar-text">
+      <h1>Only The Realest</h1>
+      <p>Trivia Night (powered by uwu.gg)</p>
+    </div>
+    <div class="header-win-btns">
+      <button class="win-btn" title="Minimize">_</button>
+      <button class="win-btn" id="maximize-btn" title="Maximize" onclick="toggleFullscreen()">□</button>
+      <button class="win-btn" title="Close" onclick="if(confirm('Exit?'))window.close()">✕</button>
+    </div>
+  </div>
+  <div class="header-status" id="header-status">Ready</div>
+</header>
+
+<!-- ── SCOREBOARD ── -->
+<div id="scoreboard"></div>
+
+<!-- ── CSV LOAD SCREEN ── -->
+<div id="csv-screen" class="screen active">
+
+  <!-- Resume saved game panel (shown only when a save exists) -->
+  <div id="resume-panel" class="win-panel">
+    <div class="win-titlebar" style="background:linear-gradient(to right,#5a3a8a,#7a5aaa)">
+      <span class="win-titlebar-icon">💾</span>
+      <span class="win-titlebar-text">Resume Saved Game</span>
+    </div>
+    <div id="resume-scores"></div>
+    <div id="resume-meta"></div>
+    <div id="resume-actions">
+      <button class="btn btn-green" onclick="resumeGame()">&#9654; Resume</button>
+      <button class="btn btn-dim" onclick="discardSave()">Discard Save</button>
+    </div>
+  </div>
+
+  <div class="win-panel" style="max-width:560px">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">📁</span>
+      <span class="win-titlebar-text">Open — Questions File</span>
+    </div>
+    <div class="win-body">
+      <p>Select or drop your CSV file to load question data.<br>
+         Format: <code>category,points,question,answer</code></p>
+      <div id="drop-zone" onclick="document.getElementById('csv-file-input').click()">
+        <div class="dz-icon">📄</div>
+        <div class="dz-label">Drop CSV Here</div>
+        <div class="dz-sub">or click to browse</div>
+      </div>
+      <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none"
+             onchange="handleFileSelect(event)">
+      <div id="csv-error"></div>
+      <div id="csv-preview"></div>
+      <button class="btn btn-gold" id="csv-continue-btn" style="display:none" onclick="showSetup()">
+        Continue &rarr;
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PLAYER SETUP SCREEN ── -->
+<div id="setup-screen" class="screen">
+  <div class="win-panel" style="max-width:460px">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">👤</span>
+      <span class="win-titlebar-text">Player Setup</span>
+    </div>
+    <div class="win-body">
+      <p>Enter each player's name, then start the game.</p>
+      <div id="player-list"></div>
+      <div class="action-row">
+        <button class="btn btn-ghost" onclick="addPlayerRow()">+ Add Player</button>
+        <button class="btn btn-gold" id="start-btn" onclick="startGame()" disabled>Start Game</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GAME BOARD ── -->
+<div id="board-container">
+  <div id="board-window">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">🎯</span>
+      <span class="win-titlebar-text">Game Board</span>
+      <button class="win-btn btn-ghost" style="width:auto;padding:0 8px;font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;height:16px;"
+              onclick="newGame()">New Game</button>
+    </div>
+    <div id="board-inner">
+      <div id="board"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ── -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div id="modal-titlebar">
+      <span id="modal-title">Point Collectors</span>
+      <button id="modal-close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body">
+
+      <!-- Daily Double: pick wagering player + wager -->
+      <div id="dd-section">
+        <div id="dd-banner">Daily Double!</div>
+        <div id="dd-cat"></div>
+        <div class="sublabel">Who is wagering?</div>
+        <div id="dd-player-btns"></div>
+        <div id="dd-wager-section">
+          <div class="sublabel">Enter wager</div>
+          <div id="dd-wager-range"></div>
+          <input type="number" id="dd-wager-input" placeholder="0" oninput="checkWagerValid()">
+          <div id="dd-confirm-area">
+            <button class="btn btn-dd" id="dd-confirm-btn" disabled onclick="confirmDDWager()">
+              Confirm Wager
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question + answer reveal -->
+      <div id="question-section">
+        <div id="modal-category"></div>
+        <div id="modal-points"></div>
+        <div id="final-badge">&#11088; Final Category Question</div>
+        <div class="win-divider"></div>
+        <div id="modal-question"></div>
+        <div class="answer-label" id="answer-label" style="display:none">Answer</div>
+        <div id="modal-answer"></div>
+        <div id="point-assign">
+          <div class="sublabel" id="point-assign-label">Award points to</div>
+          <div id="player-btns"></div>
+        </div>
+        <div id="swap-section">
+          <div class="win-divider"></div>
+          <div class="sublabel" style="margin-bottom:10px">Select two players to swap scores</div>
+          <div id="swap-player-btns"></div>
+        </div>
+        <div id="modal-actions"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── RESET MODAL ── -->
+<div id="reset-overlay">
+  <div id="reset-modal">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">↩</span>
+      <span class="win-titlebar-text">Reset Question</span>
+      <button class="win-btn" onclick="closeResetModal()">✕</button>
+    </div>
+    <div id="reset-body">
+      <div id="reset-info"></div>
+      <div id="reset-what"></div>
+      <div id="reset-actions">
+        <button class="btn btn-red" onclick="confirmReset()">↩ Reset</button>
+        <button class="btn btn-dim" onclick="closeResetModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIPPY -->
+<div id="clippy-wrap">
+  <div id="clippy-bubble"></div>
+  <svg viewBox="0 0 50 82" width="216" height="351" xmlns="http://www.w3.org/2000/svg">
+    <!-- Paperclip wire -->
+    <path d="M 12 34 C 12 8 38 8 38 34 L 38 62 C 38 74 12 74 12 62 L 12 24 C 12 14 32 14 32 24 L 32 58 C 32 67 18 67 18 58 L 18 36"
+          fill="none" stroke="#aaaaaa" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Left eye -->
+    <circle cx="19" cy="21" r="3.2" fill="white" stroke="#444" stroke-width="1"/>
+    <circle cx="20" cy="21" r="1.6" fill="#222"/>
+    <!-- Right eye -->
+    <circle cx="31" cy="21" r="3.2" fill="white" stroke="#444" stroke-width="1"/>
+    <circle cx="32" cy="21" r="1.6" fill="#222"/>
+    <!-- Eyebrows (neutral/curious) -->
+    <path d="M 15 16 Q 19 13 23 16" fill="none" stroke="#444" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M 27 16 Q 31 13 35 16" fill="none" stroke="#444" stroke-width="1.6" stroke-linecap="round"/>
+    <!-- Smile -->
+    <path d="M 20 27 Q 25 31 30 27" fill="none" stroke="#444" stroke-width="1.3" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<!-- Scripts — load order matters: state first, save last -->
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/csv.js"></script>
+<script src="js/players.js"></script>
+<script src="js/game.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/reset.js"></script>
+<script src="js/clippy.js"></script>
+<script src="js/fullscreen.js"></script>
+<script src="js/save.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Point Collectors Trivia Night</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #0a1628;
+    --gold: #f5c842;
+    --gold-dark: #c9a227;
+    --blue-mid: #0d2149;
+    --blue-light: #1a3a6e;
+    --white: #eef2ff;
+    --done: #1a2a1a;
+    --done-text: #3a5a3a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--blue);
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    width: 100%;
+    text-align: center;
+    padding: 16px 10px 10px;
+    background: linear-gradient(180deg, #000 0%, var(--blue) 100%);
+    border-bottom: 3px solid var(--gold);
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    color: var(--gold);
+    letter-spacing: 4px;
+    text-shadow: 0 0 30px rgba(245,200,66,0.4);
+  }
+  header p { font-size: 1rem; color: #aab; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* ── SCOREBOARD ── */
+  #scoreboard {
+    display: none;
+    width: 100%;
+    background: #060f1e;
+    border-bottom: 2px solid var(--gold-dark);
+    padding: 10px 20px;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  #scoreboard.visible { display: flex; }
+  .score-chip {
+    display: flex; flex-direction: column; align-items: center;
+    background: var(--blue-mid);
+    border: 2px solid var(--blue-light);
+    border-radius: 6px;
+    padding: 8px 22px;
+    min-width: 100px;
+    transition: border-color 0.2s;
+  }
+  .score-chip.leader { border-color: var(--gold); }
+  .score-chip .sc-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 2px; color: var(--white); }
+  .score-chip .sc-pts  { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--gold); line-height: 1; }
+
+  /* ── SETUP ── */
+  #setup-screen {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 50px 20px; width: 100%; max-width: 480px; gap: 18px;
+  }
+  #setup-screen h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 3px; color: var(--gold); }
+  #setup-screen > p { color: #aab; font-size: 1.1rem; text-align: center; }
+  #player-list { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+
+  .player-row {
+    display: flex; gap: 8px; align-items: center;
+    animation: slideIn 0.18s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .player-input {
+    flex: 1;
+    background: var(--blue-mid); border: 2px solid var(--blue-light); border-radius: 4px;
+    color: var(--white); font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem;
+    padding: 10px 14px; outline: none; transition: border-color 0.15s;
+  }
+  .player-input:focus { border-color: var(--gold); }
+  .player-input::placeholder { color: #3a4a6a; }
+  .remove-btn {
+    background: none; border: 2px solid #3a2a2a; color: #a05050;
+    border-radius: 4px; font-size: 1.1rem; width: 38px; height: 40px;
+    cursor: pointer; transition: background 0.15s, color 0.15s; flex-shrink: 0;
+  }
+  .remove-btn:hover { background: #3a1a1a; color: #ff7070; border-color: #ff5050; }
+  .setup-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 2px;
+    padding: 11px 28px; border: none; border-radius: 4px; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s, opacity 0.1s;
+  }
+  .btn:hover:not(:disabled) { transform: scale(1.04); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+  .btn-gold  { background: var(--gold); color: #000; }
+  .btn-ghost { background: transparent; color: var(--white); border: 2px solid var(--blue-light); }
+  .btn-green { background: #2a6a2a; color: #fff; border: 2px solid #4aaa4a; }
+  .btn-dim   { background: var(--blue-light); color: var(--white); border: 2px solid #3a5a9e; }
+
+  /* ── BOARD ── */
+  #board-container { display: none; width: 100%; max-width: 1200px; padding: 20px 10px; overflow-x: auto; }
+  #board-container.visible { display: block; }
+  #board { display: grid; gap: 6px; min-width: 700px; }
+  .cat-header {
+    background: var(--blue-mid); border: 2px solid var(--gold);
+    text-align: center; padding: 14px 6px;
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(0.8rem, 1.4vw, 1.1rem);
+    letter-spacing: 1px; color: var(--gold); border-radius: 4px;
+  }
+  .cell {
+    background: var(--blue-light); border: 2px solid var(--gold-dark);
+    text-align: center; padding: 18px 6px;
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.1rem, 2.5vw, 1.8rem);
+    color: var(--gold); border-radius: 4px; cursor: pointer;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    letter-spacing: 1px; user-select: none;
+  }
+  .cell:hover:not(.done) {
+    background: #1e4fa0; transform: scale(1.04);
+    box-shadow: 0 0 16px rgba(245,200,66,0.35); border-color: var(--gold);
+  }
+  .cell.done {
+    background: var(--done); border-color: #2a3a2a;
+    color: var(--done-text); cursor: default; opacity: 0.5;
+  }
+
+  /* ── MODAL ── */
+  #modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,10,0.88); z-index: 100;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  #modal-overlay.open { display: flex; }
+  #modal {
+    background: var(--blue-mid); border: 3px solid var(--gold); border-radius: 8px;
+    max-width: 680px; width: 100%; padding: 36px 36px 28px; text-align: center;
+    position: relative; box-shadow: 0 0 60px rgba(245,200,66,0.2);
+    animation: popIn 0.2s ease; max-height: 90vh; overflow-y: auto;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  #modal-close-btn {
+    position: absolute; top: 12px; right: 14px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 1px;
+    padding: 6px 14px; background: var(--blue-light); color: var(--white);
+    border: 2px solid #3a5a9e; border-radius: 4px; cursor: pointer;
+  }
+  #modal-close-btn:hover { background: #223a7e; }
+  #modal-category { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 3px; color: var(--gold-dark); margin-bottom: 4px; }
+  #modal-points   { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: var(--gold); margin-bottom: 18px; }
+  #modal-question { font-size: clamp(1.2rem, 3vw, 1.8rem); font-weight: 600; line-height: 1.4; margin-bottom: 24px; color: var(--white); min-height: 60px; }
+  #modal-answer   {
+    background: rgba(0,0,0,0.3); border: 2px solid var(--gold-dark); border-radius: 6px;
+    padding: 14px 18px; font-size: 1.2rem; color: var(--gold);
+    margin-bottom: 20px; display: none; line-height: 1.5;
+  }
+
+  /* Point assignment */
+  #point-assign { display: none; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 18px; }
+  #point-assign.visible { display: flex; }
+  #point-assign-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 2px; color: #8899bb; }
+  #player-btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+  .player-award-btn {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; letter-spacing: 1px;
+    padding: 10px 22px; border-radius: 4px; cursor: pointer;
+    border: 2px solid var(--blue-light); background: var(--blue-light); color: var(--white);
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .player-award-btn:hover { background: #2a5aaa; border-color: var(--gold-dark); transform: scale(1.05); }
+  .player-award-btn.selected { background: #1a5a1a; border-color: #4aaa4a; color: #aaffaa; }
+
+  #modal-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Point Collectors</h1>
+  <p>Trivia Night &mdash; Jeopardy Edition</p>
+</header>
+
+<div id="scoreboard"></div>
+
+<!-- Setup -->
+<div id="setup-screen">
+  <h2>Who's Playing?</h2>
+  <p>Add each player, then start when everyone's in.</p>
+  <div id="player-list"></div>
+  <div class="setup-actions">
+    <button class="btn btn-ghost" onclick="addPlayerRow()">+ Add Player</button>
+    <button class="btn btn-gold" id="start-btn" onclick="startGame()" disabled>Start Game</button>
+  </div>
+</div>
+
+<!-- Board -->
+<div id="board-container">
+  <div id="board"></div>
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay">
+  <div id="modal">
+    <button id="modal-close-btn" onclick="closeModal()">✕ Close</button>
+    <div id="modal-category"></div>
+    <div id="modal-points"></div>
+    <div id="modal-question"></div>
+    <div id="modal-answer"></div>
+    <div id="point-assign">
+      <div id="point-assign-label">AWARD POINTS TO</div>
+      <div id="player-btns"></div>
+    </div>
+    <div id="modal-actions"></div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { category: "College", question: "Who still has senior project ongoing?", answer: "Ron" },
+  { category: "College", question: "This professor shared a name with a rock star — who were they?", answer: "Hendrix" },
+  { category: "College", question: "How many restaurant vendors were at USF?", answer: "10 (11 if you count Publix): Beefs, Jamba Juice, Subway ×2, Chinese, Moe's, Chick-fil-A, Papa Johns, Starbucks, Pollo Tropical" },
+  { category: "College", question: "What are the 3 keys to success?", answer: "Monster, Fasting, and McDonald's" },
+  { category: "College", question: "What was the hidden buffet called in the MSC?", answer: "Top of the Palms" },
+  { category: "College", question: "How large is the USF campus?", answer: "3.75 km²" },
+  { category: "College", question: "What was the hardest thing to get during finals week?", answer: "Library study room" },
+  { category: "Gaming", question: "What series did Tristan complete in college?", answer: null },
+  { category: "Gaming", question: "What is baba?", answer: null },
+  { category: "Gaming", question: "Who says: '...One of these days, you're gonna land on somethin' as stubborn as you are!...'", answer: "Sergeant Avery Johnson (Halo)" },
+  { category: "Gaming", question: "Who is the enemy in Jedi Fallen Order?", answer: "Sith — Trilla, Second Sister" },
+  { category: "Gaming", question: "What is the person to your left's most played game (according to Steam)?", answer: "Shreyas: Destiny 2 (4016.9h) · Joey: Tabletop Simulator (182.9h) · Ron: Team Fortress 2 (5681.9h) · Tristan: Elden Ring (141.5h)" },
+  { category: "Gaming", question: "What map is the following image on?", answer: "Sand Trap" },
+  { category: "Gaming", question: "What is our combined time on Tabletop Simulator?", answer: "525.1 hrs (Tristan 30.5, Joey 182.9, Ron 137.2, Shreyas 116.2, Doc 58.3)" },
+  { category: "Spice of Life", question: "Where was our first game event?", answer: null },
+  { category: "Spice of Life", question: "How is Ron best described when gaming?", answer: "Gremlin" },
+  { category: "Spice of Life", question: "What must you be strapped with?", answer: "Cards" },
+  { category: "Spice of Life", question: "What color was the Lake Tahoe raft?", answer: "Blue" },
+  { category: "Spice of Life", question: "What animal did Ron and Joey get in their drinks in Montana?", answer: "Ducks" },
+  { category: "Spice of Life", question: "When was our Discord made?", answer: "June 1st, 2019 at 1:56 AM" },
+  { category: "Spice of Life", question: "What game do I always suggest but we never play?", answer: "Spades" },
+  { category: "Food", question: "What meat has the most protein?", answer: "Chicken Breast" },
+  { category: "Food", question: "Default order at Miller's is?", answer: "Zinger Mountain Melt + beer of choice" },
+  { category: "Food", question: "Which country exports the most olive oil?", answer: null },
+  { category: "Food", question: "What is the most consumed food in the world?", answer: null },
+  { category: "Food", question: "How many burgers did Ron make in Montana?", answer: "12 bacon cheeseburgers" },
+  { category: "Food", question: "What was the first food eaten on the moon?", answer: "Bacon" },
+  { category: "Food", question: "What was cotton candy's original name?", answer: "Fairy Floss" },
+  { category: "Achievements", question: "How does one get 'Return to Sender'?", answer: "Kill a Ghast with a fireball (Minecraft)" },
+  { category: "Achievements", question: "How do you get 'A Crappy Way to Die'?", answer: "Kill the enemy in the porta-potty — MW2 Dark Water" },
+  { category: "Achievements", question: "What Halo skull disables auto-aim?", answer: "Halo CE Eye Patch" },
+  { category: "Achievements", question: "How do you earn 'Good Listener'?", answer: "Take GLaDOS's escape advice (Portal)" },
+  { category: "Achievements", question: "Where is 'Age of the Stars' from?", answer: "Elden Ring" },
+  { category: "Achievements", question: "How far do you need to fall to get 'Terminal Velocity'?", answer: "30,000 ft" },
+  { category: "Achievements", question: "What is the best way to 'Rage Quit'?", answer: "Flip the table 100 times" },
+  { category: "Sports", question: "What sport did Tristan play in high school?", answer: "Football" },
+  { category: "Sports", question: "What is the most played sport in the world?", answer: "Soccer" },
+  { category: "Sports", question: "What are the five sports for the original Wii Sports?", answer: "Tennis, Baseball, Bowling, Golf, Boxing" },
+  { category: "Sports", question: "Why are tennis balls yellow?", answer: "For better viewing on TV" },
+  { category: "Sports", question: "What colors are the Olympic rings?", answer: "Blue, Black, Red, Yellow, Green" },
+  { category: "Sports", question: "Name a football player (other than a kicker) with more than 300 games.", answer: "Tom Brady, Jerry Rice, Brett Favre" },
+  { category: "Sports", question: "What is the average true play time of a baseball game?", answer: null },
+  { category: "History", question: "What creature is named after a state in which it resides?", answer: "Florida Man" },
+  { category: "History", question: "Who is the most famous WoW player?", answer: "Leeroy Jenkins" },
+  { category: "History", question: "Who has the most items on their Steam Wishlist?", answer: "Joey" },
+  { category: "History", question: "What game has the icon in the top left been for this quiz?", answer: "Elden Ring (multiplayer)" },
+  { category: "History", question: "What is Scotland's national animal?", answer: "Unicorn" },
+  { category: "History", question: "What animal poops cubes?", answer: "Wombat" },
+  { category: "History", question: "What vehicle have I not operated?", answer: null },
+];
+
+const CATS = [...new Set(questions.map(q => q.category))];
+const byCategory = {};
+CATS.forEach(c => { byCategory[c] = questions.filter(q => q.category === c); });
+
+const done = new Set();
+let currentKey = null;
+let currentPoints = 0;
+let players = [];
+let selectedPlayer = null;
+
+// ── SETUP ──────────────────────────────────────────────
+
+function addPlayerRow() {
+  const list = document.getElementById('player-list');
+  const row = document.createElement('div');
+  row.className = 'player-row';
+  row.innerHTML = `
+    <input class="player-input" type="text" placeholder="Player name..." maxlength="20"
+      oninput="checkStartable()" onkeydown="if(event.key==='Enter') addPlayerRow()">
+    <button class="remove-btn" onclick="this.closest('.player-row').remove(); checkStartable()">✕</button>
+  `;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+  checkStartable();
+}
+
+function checkStartable() {
+  const filled = [...document.querySelectorAll('.player-input')].filter(i => i.value.trim());
+  document.getElementById('start-btn').disabled = filled.length < 1;
+}
+
+function startGame() {
+  const names = [...document.querySelectorAll('.player-input')]
+    .map(i => i.value.trim()).filter(Boolean);
+  if (!names.length) return;
+
+  players = names.map(name => ({ name, score: 0 }));
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('board-container').classList.add('visible');
+  document.getElementById('scoreboard').classList.add('visible');
+  renderScoreboard();
+  buildBoard();
+}
+
+// ── SCOREBOARD ─────────────────────────────────────────
+
+function renderScoreboard() {
+  const maxScore = Math.max(...players.map(p => p.score));
+  document.getElementById('scoreboard').innerHTML = players.map((p, i) => `
+    <div class="score-chip ${p.score === maxScore && maxScore > 0 ? 'leader' : ''}">
+      <span class="sc-name">${p.name}</span>
+      <span class="sc-pts">${p.score}</span>
+    </div>
+  `).join('');
+}
+
+// ── BOARD ──────────────────────────────────────────────
+
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  board.style.gridTemplateColumns = `repeat(${CATS.length}, 1fr)`;
+
+  CATS.forEach(cat => {
+    const h = document.createElement('div');
+    h.className = 'cat-header';
+    h.textContent = cat;
+    board.appendChild(h);
+  });
+
+  const maxQ = Math.max(...CATS.map(c => byCategory[c].length));
+  for (let row = 0; row < maxQ; row++) {
+    CATS.forEach(cat => {
+      const cell = document.createElement('div');
+      const qs = byCategory[cat];
+      if (row < qs.length) {
+        const pts = (row + 1) * 100;
+        const key = `${cat}|||${row}`;
+        const isDone = done.has(key);
+        cell.className = 'cell' + (isDone ? ' done' : '');
+        cell.textContent = isDone ? '✓' : `$${pts}`;
+        if (!isDone) cell.onclick = () => openModal(cat, row, key, pts);
+      } else {
+        cell.className = 'cell done';
+        cell.style.opacity = '0';
+        cell.style.pointerEvents = 'none';
+      }
+      board.appendChild(cell);
+    });
+  }
+}
+
+// ── MODAL ──────────────────────────────────────────────
+
+function openModal(cat, idx, key, pts) {
+  currentKey = key;
+  currentPoints = pts;
+  selectedPlayer = null;
+
+  const q = byCategory[cat][idx];
+  document.getElementById('modal-category').textContent = cat;
+  document.getElementById('modal-points').textContent = `$${pts}`;
+  document.getElementById('modal-question').textContent = q.question;
+  document.getElementById('modal-answer').style.display = 'none';
+  document.getElementById('modal-answer').textContent = '';
+  document.getElementById('point-assign').classList.remove('visible');
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-gold" onclick="revealAnswer()">Reveal Answer</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function revealAnswer() {
+  const [cat, idxStr] = currentKey.split('|||');
+  const q = byCategory[cat][+idxStr];
+
+  const answerEl = document.getElementById('modal-answer');
+  answerEl.textContent = q.answer || '(No answer recorded — group decides!)';
+  answerEl.style.display = 'block';
+
+  // Build player buttons
+  document.getElementById('player-btns').innerHTML = players.map((p, i) => `
+    <button class="player-award-btn" id="award-btn-${i}" onclick="selectPlayer(${i})">${p.name}</button>
+  `).join('');
+  document.getElementById('point-assign').classList.add('visible');
+
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-green" onclick="confirmAndClose()">✓ Done</button>
+    <button class="btn btn-dim" onclick="closeModal()">No Points</button>
+  `;
+}
+
+function selectPlayer(idx) {
+  if (selectedPlayer === idx) {
+    // deselect
+    document.getElementById(`award-btn-${idx}`).classList.remove('selected');
+    selectedPlayer = null;
+    return;
+  }
+  if (selectedPlayer !== null) {
+    const prev = document.getElementById(`award-btn-${selectedPlayer}`);
+    if (prev) prev.classList.remove('selected');
+  }
+  selectedPlayer = idx;
+  document.getElementById(`award-btn-${idx}`).classList.add('selected');
+}
+
+function confirmAndClose() {
+  if (selectedPlayer !== null) {
+    players[selectedPlayer].score += currentPoints;
+    renderScoreboard();
+  }
+  done.add(currentKey);
+  closeModal();
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  buildBoard();
+}
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+
+// Init with 4 empty rows
+addPlayerRow(); addPlayerRow(); addPlayerRow(); addPlayerRow();
+</script>
+</body>
+</html>

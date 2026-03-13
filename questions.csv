@@ -1,0 +1,50 @@
+category,points,question,answer
+Science & Nature,100,What planet is known as the Red Planet?,Mars,images/dog.jpg,images/dog.jpg
+Science & Nature,200,What is the chemical symbol for gold?,Au
+Science & Nature,300,How many bones are in the adult human body?,206
+Science & Nature,400,What is the largest organ in the human body?,The skin
+Science & Nature,500,What gas do plants absorb during photosynthesis?,Carbon dioxide (CO2)
+Science & Nature,600,What is the hardest natural substance on Earth?,Diamond
+Science & Nature,700,"Approximately how far is the Earth from the Sun, in miles?","93 million miles (150 million km)"
+Pop Culture,100,What band was Freddie Mercury the lead singer of?,Queen
+Pop Culture,200,What streaming service produces Stranger Things?,Netflix
+Pop Culture,300,What year did the first iPhone launch?,2007
+Pop Culture,400,Who wrote the Harry Potter book series?,J.K. Rowling
+Pop Culture,500,What TV show features a chemistry teacher who becomes a drug manufacturer?,Breaking Bad
+Pop Culture,600,What is the highest-grossing film franchise of all time?,Marvel Cinematic Universe
+Pop Culture,700,Who holds the record for the most Grammy Awards won by a single artist?,Beyoncé
+History,100,What year did World War II end?,1945
+History,200,Who was the first President of the United States?,George Washington
+History,300,In what year did the Berlin Wall fall?,1989
+History,400,What empire did Genghis Khan found?,The Mongol Empire
+History,500,What year was the Magna Carta signed?,1215
+History,600,Who was the first person to circumnavigate the globe?,Ferdinand Magellan (completed by his crew after his death)
+History,700,"Who was the first woman to win a Nobel Prize, and in what field?","Marie Curie — Physics, 1903"
+Geography,100,What is the capital of France?,Paris
+Geography,200,What is the longest river in the world?,The Nile
+Geography,300,What country has the most natural lakes in the world?,Canada
+Geography,400,What is the smallest country in the world by area?,Vatican City
+Geography,500,What mountain range forms the natural border between Europe and Asia?,The Ural Mountains
+Geography,600,What is the deepest lake in the world?,Lake Baikal (Russia)
+Geography,700,"What two countries share the longest international border in the world?","Canada and the United States"
+Food & Drink,100,What is the main ingredient in guacamole?,Avocado
+Food & Drink,200,What country did sushi originate from?,Japan
+Food & Drink,300,What gives red wine its color?,The grape skins
+Food & Drink,400,What is the world's most expensive spice by weight?,Saffron
+Food & Drink,500,What country consumes the most coffee per capita?,Finland
+Food & Drink,600,What chemical compound is responsible for the heat in chili peppers?,Capsaicin
+Food & Drink,700,What is the Japanese term for raw fish served sliced and without rice (distinct from sushi)?,Sashimi
+Sports,100,How many players from one team are on the field during a soccer match?,11
+Sports,200,What sport uses a shuttlecock?,Badminton
+Sports,300,How many Grand Slam tournaments are held in tennis per year?,4
+Sports,400,How many rings are on the Olympic flag?,5
+Sports,500,"In bowling, what is the maximum score achievable in a single frame?","30 (three strikes in a row)"
+Sports,600,In what year were the first modern Olympic Games held?,1896
+Sports,700,What is the only sport ever played on the surface of the Moon?,Golf
+Movies & TV,100,What animated film features a lion cub named Simba?,The Lion King
+Movies & TV,200,Who played Tony Stark / Iron Man in the Marvel Cinematic Universe?,Robert Downey Jr.
+Movies & TV,300,What is the name of the fictional African nation in Black Panther?,Wakanda
+Movies & TV,400,"What director made Jaws, E.T., and Schindler's List?",Steven Spielberg
+Movies & TV,500,What year was the original Star Wars film released?,1977
+Movies & TV,600,"What TV show, set in Hawkins Indiana, features kids facing supernatural threats?",Stranger Things
+Movies & TV,700,What film won the very first Academy Award for Best Picture?,Wings (1927)

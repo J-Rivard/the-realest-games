@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Point Collectors Trivia Night</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23006747'/%3E%3Ctext x='16' y='19' font-family='serif' font-size='11' font-weight='bold' text-anchor='middle' fill='%23cfc493' transform='rotate(38,16,16)'%3EOTR%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+/* ── DESIGN TOKENS ───────────────────────────────────── */
+:root {
+  /* Windows 95 grays */
+  --g:      #c0c0c0;   /* base gray */
+  --g-lo:   #d4d0c8;   /* light gray face */
+  --g-hi:   #efefef;   /* hover highlight */
+  --b-hi:   #ffffff;   /* bevel bright edge */
+  --b-lo:   #404040;   /* bevel dark edge */
+  --b-mhi:  #dfdfdf;   /* inner bevel bright */
+  --b-mlo:  #808080;   /* inner bevel dark */
+
+  /* USF accent palette */
+  --usf-g:  #006747;   /* USF green */
+  --usf-gm: #007a55;   /* USF green mid */
+  --usf-gd: #004d35;   /* USF green dark (desktop) */
+  --usf-au: #cfc493;   /* USF gold */
+  --usf-ad: #9e8f50;   /* USF gold dark */
+
+  /* Semantic */
+  --black: #000000;
+  --red:   #aa2020;
+}
+
+/* ── RESET ───────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+button { font-family: inherit; }
+
+/* ── BODY / DESKTOP ──────────────────────────────────── */
+body {
+  background: var(--usf-gd);
+  /* subtle desktop pattern */
+  background-image:
+    linear-gradient(45deg, rgba(0,0,0,0.06) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0,0,0,0.06) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.06) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.06) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 0 2px, 2px -2px, -2px 0;
+  font-family: 'Courier New', Courier, monospace;
+  color: var(--black);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── W95 BEVEL MIXINS (applied inline via shared props) ─ */
+/* raised: light top-left, dark bottom-right */
+.raised {
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+}
+/* sunken: dark top-left, light bottom-right */
+.sunken {
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo), inset -1px -1px 0 var(--b-mhi);
+}
+
+/* ── TITLE BAR (reusable) ────────────────────────────── */
+.win-titlebar {
+  background: linear-gradient(to right, var(--usf-g), var(--usf-gm));
+  padding: 3px 4px 3px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  flex-shrink: 0;
+}
+.win-titlebar-icon { font-size: 0.85rem; line-height: 1; }
+.win-titlebar-text {
+  flex: 1;
+  color: var(--b-hi);
+  font-size: 0.82rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.win-btn {
+  background: var(--g);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  color: var(--black);
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  width: 18px;
+  height: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.win-btn:hover { background: var(--b-mhi); }
+.win-btn:active {
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+}
+
+/* ── WINDOW PANEL (for screens) ─────────────────────── */
+.win-panel {
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo),
+              3px 3px 0 rgba(0,0,0,0.4);
+  width: 100%;
+  overflow: hidden;
+}
+.win-body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.win-body > p {
+  color: #333;
+  font-size: 0.88rem;
+  text-align: center;
+  line-height: 1.6;
+}
+.win-body code {
+  background: var(--g-lo);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  padding: 1px 5px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  color: var(--usf-g);
+}
+
+/* ── HEADER ─────────────────────────────────────────── */
+header {
+  width: 100%;
+  flex-shrink: 0;
+  /* outer window frame */
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+  background: var(--g);
+}
+.header-titlebar {
+  background: linear-gradient(to right, var(--usf-g), var(--usf-gm));
+  padding: 4px 6px 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-titlebar-icon { font-size: 1.1rem; line-height: 1; }
+.header-titlebar-text { flex: 1; }
+.header-titlebar-text h1 {
+  font-family: 'VT323', monospace;
+  font-size: clamp(1.5rem, 5vw, 2.6rem);
+  color: var(--b-hi);
+  letter-spacing: 3px;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.6);
+  line-height: 1;
+}
+.header-titlebar-text p {
+  font-size: 0.72rem;
+  color: var(--usf-au);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.header-win-btns {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.header-status {
+  background: var(--g-lo);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  color: #444;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── SCOREBOARD ─────────────────────────────────────── */
+#scoreboard {
+  display: none;
+  width: 100%;
+  background: var(--g);
+  border-bottom: 2px solid var(--b-lo);
+  border-top: 1px solid var(--b-mhi);
+  padding: 8px 14px;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+#scoreboard.visible { display: flex; }
+
+.score-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--g-lo);
+  padding: 6px 16px;
+  min-width: 88px;
+  /* raised */
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+}
+.score-chip.leader {
+  background: #1a2200;
+  border-color: var(--usf-au);
+  box-shadow: 0 0 0 1px var(--usf-ad);
+}
+.score-chip .sc-name {
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  color: var(--black);
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.score-chip.leader .sc-name { color: var(--usf-au); }
+.score-chip .sc-pts {
+  font-family: 'VT323', monospace;
+  font-size: 2.1rem;
+  color: var(--usf-g);
+  line-height: 1;
+}
+.score-chip.leader .sc-pts { color: var(--usf-au); }
+
+/* ── SCREENS ─────────────────────────────────────────── */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 12px;
+  width: 100%;
+  gap: 0;
+}
+.screen.active { display: flex; }
+
+/* ── CSV SCREEN ──────────────────────────────────────── */
+#csv-screen { max-width: 580px; }
+
+#drop-zone {
+  width: 100%;
+  background: #ffffff;
+  /* sunken */
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo);
+  padding: 36px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.08s;
+}
+#drop-zone:hover, #drop-zone.drag-over { background: #ecf5ec; }
+.dz-icon { font-size: 2.2rem; margin-bottom: 8px; }
+.dz-label {
+  font-family: 'VT323', monospace;
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  color: var(--usf-g);
+  margin-bottom: 4px;
+}
+.dz-sub { color: var(--b-mlo); font-size: 0.82rem; }
+
+#csv-error {
+  width: 100%;
+  display: none;
+  color: var(--red);
+  font-size: 0.82rem;
+  background: #ffe8e8;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  padding: 8px 12px;
+}
+#csv-preview {
+  display: none;
+  width: 100%;
+  background: var(--g-lo);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  padding: 10px 14px;
+  text-align: left;
+}
+#csv-preview h3 {
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--usf-g);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--b-mlo);
+  padding-bottom: 4px;
+}
+.preview-stat { font-size: 0.82rem; color: #333; margin-bottom: 3px; }
+.preview-stat span { color: var(--usf-g); font-weight: bold; }
+
+/* ── SETUP SCREEN ────────────────────────────────────── */
+#setup-screen { max-width: 480px; }
+#player-list { width: 100%; display: flex; flex-direction: column; gap: 5px; }
+
+.player-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  animation: slideIn 0.15s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.player-input {
+  flex: 1;
+  background: #ffffff;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo);
+  color: var(--black);
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  padding: 5px 9px;
+  outline: none;
+}
+.player-input:focus { outline: 1px dotted var(--usf-g); outline-offset: -3px; }
+.player-input::placeholder { color: #aaa; }
+
+.remove-btn {
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+  color: var(--black);
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  width: 34px;
+  height: 32px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.remove-btn:hover { background: var(--g-hi); }
+.remove-btn:active {
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo), inset -1px -1px 0 var(--b-mhi);
+  padding-top: 1px;
+  padding-left: 1px;
+}
+
+.action-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn {
+  font-family: 'Courier New', monospace;
+  font-size: 0.88rem;
+  letter-spacing: 1px;
+  padding: 5px 16px;
+  min-width: 80px;
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+  cursor: pointer;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: background 0.05s;
+}
+.btn:hover:not(:disabled) { background: var(--g-hi); }
+.btn:active:not(:disabled) {
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo), inset -1px -1px 0 var(--b-mhi);
+  padding-top: 6px; padding-left: 17px; padding-bottom: 4px; padding-right: 15px;
+}
+.btn:disabled { color: var(--b-mlo); text-shadow: 1px 1px 0 var(--b-hi); cursor: default; }
+
+.btn-gold  { background: var(--usf-au); }
+.btn-gold:hover:not(:disabled) { background: #d8cc9a; }
+.btn-ghost { background: var(--g); }
+.btn-green { background: var(--usf-g); color: #ffffff; }
+.btn-green:hover:not(:disabled) { background: var(--usf-gm); }
+.btn-red   { background: #882020; color: #ffffff; }
+.btn-red:hover:not(:disabled) { background: #aa2828; }
+.btn-dim   { background: var(--g-lo); }
+.btn-dd    { background: var(--usf-au); color: var(--black); }
+.btn-swap  { background: #5a3a8a; color: #ffffff; }
+.btn-swap:hover:not(:disabled) { background: #6a4a9a; }
+
+/* ── FINAL CATEGORY BADGE ────────────────────────────── */
+#final-badge {
+  display: none;
+  background: var(--usf-au);
+  color: var(--black);
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+/* ── SWAP SECTION ────────────────────────────────────── */
+#swap-section { display: none; }
+#swap-player-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.swap-player-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  padding: 6px 16px;
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+  cursor: pointer;
+  text-transform: uppercase;
+  color: var(--black);
+  min-width: 90px;
+  text-align: center;
+  line-height: 1.4;
+}
+.swap-player-btn:hover:not(:disabled) { background: var(--g-hi); }
+.swap-player-btn.selected {
+  background: #5a3a8a;
+  color: #ffffff;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo), inset -1px -1px 0 var(--b-mhi);
+}
+.swap-player-btn:disabled { color: var(--b-mlo); cursor: default; }
+.swap-score {
+  display: block;
+  font-family: 'VT323', monospace;
+  font-size: 1.3rem;
+  color: var(--usf-g);
+  line-height: 1;
+}
+.swap-player-btn.selected .swap-score { color: #caa0ff; }
+
+/* ── BOARD ───────────────────────────────────────────── */
+#board-container {
+  display: none;
+  width: 100%;
+  max-width: 1400px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  padding: 12px 10px 30px;
+}
+#board-container.visible { display: block; }
+
+/* board container styled as a window panel */
+#board-window {
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo),
+              3px 3px 0 rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+#board-toolbar {
+  background: var(--g-lo);
+  border-bottom: 1px solid var(--b-mlo);
+  padding: 4px 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  align-items: center;
+}
+#board-toolbar-label {
+  flex: 1;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+#board-inner { padding: 8px; }
+#board { display: grid; gap: 4px; min-width: 600px; }
+
+.cat-header {
+  background: var(--usf-g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--usf-gm) #002e1e #002e1e var(--usf-gm);
+  text-align: center;
+  padding: 10px 4px;
+  font-family: 'VT323', monospace;
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+  letter-spacing: 1px;
+  color: var(--usf-au);
+  text-shadow: 1px 1px 0 #000;
+}
+.cell {
+  background: var(--usf-g);
+  border-width: 3px;
+  border-style: solid;
+  border-color: var(--usf-gm) #002e1e #002e1e var(--usf-gm);
+  text-align: center;
+  padding: 18px 4px;
+  font-family: 'VT323', monospace;
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  color: var(--usf-au);
+  text-shadow: 1px 1px 0 #000;
+  cursor: pointer;
+  letter-spacing: 1px;
+  user-select: none;
+  transition: background 0.06s;
+}
+.cell:hover:not(.done) {
+  background: #004d35;
+  border-color: #002e1e var(--usf-gm) var(--usf-gm) #002e1e; /* pressed */
+}
+.cell.done {
+  background: var(--b-mlo);
+  border-color: var(--b-lo) var(--b-mhi) var(--b-mhi) var(--b-lo);
+  color: var(--g);
+  text-shadow: 1px 1px 0 var(--b-lo);
+  cursor: pointer;
+  opacity: 0.65;
+}
+.cell.done:hover {
+  background: #9a9090;
+  opacity: 0.8;
+}
+
+/* ── MODAL ───────────────────────────────────────────── */
+#modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  /* W95-style stipple dimming */
+  background-color: transparent;
+  background-image:
+    linear-gradient(45deg, rgba(0,0,0,0.55) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0,0,0,0.55) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.55) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.55) 75%);
+  background-size: 2px 2px;
+  background-position: 0 0, 0 1px, 1px -1px, -1px 0;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#modal-overlay.open { display: flex; }
+
+#modal {
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo),
+              4px 4px 0 rgba(0,0,0,0.5);
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#modal-titlebar {
+  background: linear-gradient(to right, var(--usf-g), var(--usf-gm));
+  padding: 3px 4px 3px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+#modal-title {
+  flex: 1;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#modal-close-btn {
+  background: var(--g);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  color: var(--black);
+  font-family: 'Courier New', monospace;
+  font-size: 0.68rem;
+  font-weight: bold;
+  width: 18px;
+  height: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+#modal-close-btn:hover { background: var(--b-mhi); }
+#modal-close-btn:active {
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+}
+
+#modal-body {
+  padding: 20px 24px 20px;
+  overflow-y: auto;
+  flex: 1;
+  text-align: center;
+}
+
+/* ── DD SECTION ─────────────────────────────────────── */
+#dd-section { display: none; }
+#dd-banner {
+  font-family: 'VT323', monospace;
+  font-size: clamp(2.5rem, 9vw, 4.8rem);
+  color: var(--usf-au);
+  letter-spacing: 4px;
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 var(--usf-ad);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+#dd-cat {
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--usf-g);
+  margin-bottom: 18px;
+  text-transform: uppercase;
+}
+.sublabel {
+  font-size: 0.73rem;
+  letter-spacing: 2px;
+  color: var(--b-mlo);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+#dd-player-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.dd-player-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 0.88rem;
+  letter-spacing: 1px;
+  padding: 5px 16px;
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.dd-player-btn:hover { background: var(--g-hi); }
+.dd-player-btn.selected {
+  background: var(--usf-au);
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo), inset -1px -1px 0 var(--b-mhi);
+}
+
+#dd-wager-section { display: none; margin-bottom: 16px; }
+#dd-wager-range { color: var(--b-mlo); font-size: 0.78rem; margin-bottom: 8px; }
+#dd-wager-input {
+  background: #ffffff;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo);
+  color: var(--usf-g);
+  font-family: 'VT323', monospace;
+  font-size: 2.8rem;
+  padding: 4px 14px;
+  outline: none;
+  text-align: center;
+  width: 180px;
+  letter-spacing: 2px;
+}
+#dd-wager-input:focus { outline: 1px dotted var(--usf-g); outline-offset: -3px; }
+#dd-confirm-area { margin-top: 12px; }
+
+/* ── QUESTION SECTION ───────────────────────────────── */
+#question-section { display: none; }
+
+/* horizontal divider (W95 style) */
+.win-divider {
+  width: 100%;
+  height: 0;
+  border-top: 1px solid var(--b-mlo);
+  border-bottom: 1px solid var(--b-hi);
+  margin: 10px 0;
+}
+
+#modal-category {
+  font-size: 0.72rem;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--usf-g);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+#modal-points {
+  font-family: 'VT323', monospace;
+  font-size: 3.2rem;
+  color: var(--usf-au);
+  text-shadow: 1px 1px 0 var(--b-lo);
+  margin-bottom: 14px;
+  line-height: 1;
+}
+#modal-question {
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  font-weight: bold;
+  line-height: 1.55;
+  margin-bottom: 18px;
+  color: var(--black);
+  min-height: 50px;
+}
+.answer-label {
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--b-mlo);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  text-align: left;
+  width: 100%;
+}
+#modal-answer {
+  background: #ffffff;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo);
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--usf-g);
+  margin-bottom: 14px;
+  display: none;
+  line-height: 1.5;
+  text-align: left;
+  width: 100%;
+}
+
+#point-assign {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+#point-assign.visible { display: flex; }
+#player-btns { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+
+.player-award-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 0.88rem;
+  letter-spacing: 1px;
+  padding: 5px 16px;
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+  cursor: pointer;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: background 0.05s;
+}
+.player-award-btn:hover:not(:disabled) { background: var(--g-hi); }
+.player-award-btn.selected {
+  background: var(--usf-au);
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo), inset -1px -1px 0 var(--b-mhi);
+}
+.player-award-btn.dd-wagered {
+  background: var(--usf-au);
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo), inset -1px -1px 0 var(--b-mhi);
+  cursor: default;
+}
+.player-award-btn:disabled { color: var(--b-mlo); cursor: default; }
+
+#modal-actions { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+
+/* ── MODAL IMAGES ────────────────────────────────────── */
+.modal-img {
+  max-width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  display: block;
+  margin: 10px auto 0;
+  background: #ffffff;
+  /* W95 sunken picture-frame border */
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  box-shadow: inset 1px 1px 0 var(--b-mlo);
+}
+.modal-img-err {
+  margin: 10px auto 0;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--red);
+  background: #ffe8e8;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  text-align: left;
+}
+
+/* ── RESET OVERLAY ───────────────────────────────────── */
+#reset-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: transparent;
+  background-image:
+    linear-gradient(45deg, rgba(0,0,0,0.55) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0,0,0,0.55) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.55) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.55) 75%);
+  background-size: 2px 2px;
+  background-position: 0 0, 0 1px, 1px -1px, -1px 0;
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#reset-overlay.open { display: flex; }
+#reset-modal {
+  background: var(--g);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo),
+              4px 4px 0 rgba(0,0,0,0.5);
+  max-width: 420px;
+  width: 100%;
+}
+#reset-modal .win-titlebar {
+  background: linear-gradient(to right, #882020, #aa2828);
+}
+#reset-body {
+  padding: 18px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+#reset-info {
+  font-size: 0.8rem;
+  color: #555;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+#reset-info strong { color: var(--usf-g); text-transform: none; }
+#reset-what {
+  background: var(--g-lo);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--b-lo) var(--b-hi) var(--b-hi) var(--b-lo);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  text-align: left;
+  line-height: 1.6;
+}
+#reset-what strong { color: var(--usf-g); }
+#reset-actions { display: flex; gap: 6px; justify-content: center; }
+
+/* ── CLIPPY ───────────────────────────────────────── */
+#clippy-wrap {
+  position: fixed;
+  bottom: 14px;
+  left: 14px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+#clippy-wrap.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+#clippy-wrap.visible svg {
+  animation: clippy-bounce 4s ease-in-out infinite;
+}
+@keyframes clippy-bounce {
+  0%, 55%, 100% { transform: translateY(0); }
+  60%           { transform: translateY(-10px); }
+  65%           { transform: translateY(0); }
+  70%           { transform: translateY(-6px); }
+  75%           { transform: translateY(0); }
+}
+#clippy-bubble {
+  background: #ffffcc;
+  border: 2px solid #000;
+  padding: 6px 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  max-width: 155px;
+  line-height: 1.4;
+  box-shadow: 2px 2px 0 #808080;
+  position: relative;
+}
+#clippy-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 24px;
+  border-width: 5px 5px 0;
+  border-style: solid;
+  border-color: #000 transparent transparent;
+}
+#clippy-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 25px;
+  border-width: 4px 4px 0;
+  border-style: solid;
+  border-color: #ffffcc transparent transparent;
+  z-index: 1;
+}
+
+/* ── RESUME PANEL ────────────────────────────────────── */
+#resume-panel {
+  display: none;
+  max-width: 560px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+#resume-panel.visible { display: block; }
+#resume-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  padding: 10px 14px 4px;
+}
+#resume-meta {
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 2px 14px 8px;
+}
+#resume-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  padding: 0 14px 14px;
+}
+.resume-chip {
+  background: var(--g-lo);
+  padding: 4px 14px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--b-hi) var(--b-lo) var(--b-lo) var(--b-hi);
+  box-shadow: inset 1px 1px 0 var(--b-mhi), inset -1px -1px 0 var(--b-mlo);
+  text-align: center;
+  min-width: 80px;
+}
+.resume-chip .rc-name {
+  font-size: 0.72rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.resume-chip .rc-score {
+  font-family: 'VT323', monospace;
+  font-size: 1.6rem;
+  color: var(--usf-g);
+  line-height: 1;
+}
+</style>
+</head>
+<body>
+
+<!-- ── APP WINDOW HEADER ── -->
+<header>
+  <div class="header-titlebar">
+    <span class="header-titlebar-icon">🏆</span>
+    <div class="header-titlebar-text">
+      <h1>Only The Realest</h1>
+      <p>Trivia Night (powered by uwu.gg)</p>
+    </div>
+    <div class="header-win-btns">
+      <button class="win-btn" title="Minimize">_</button>
+      <button class="win-btn" id="maximize-btn" title="Maximize" onclick="toggleFullscreen()">□</button>
+      <button class="win-btn" title="Close" onclick="if(confirm('Exit?'))window.close()">✕</button>
+    </div>
+  </div>
+  <div class="header-status" id="header-status">Ready</div>
+</header>
+
+<!-- ── SCOREBOARD ── -->
+<div id="scoreboard"></div>
+
+<!-- ── CSV LOAD SCREEN ── -->
+<div id="csv-screen" class="screen active">
+
+  <!-- Resume saved game panel (shown only when a save exists) -->
+  <div id="resume-panel" class="win-panel">
+    <div class="win-titlebar" style="background:linear-gradient(to right,#5a3a8a,#7a5aaa)">
+      <span class="win-titlebar-icon">💾</span>
+      <span class="win-titlebar-text">Resume Saved Game</span>
+    </div>
+    <div id="resume-scores"></div>
+    <div id="resume-meta"></div>
+    <div id="resume-actions">
+      <button class="btn btn-green" onclick="resumeGame()">&#9654; Resume</button>
+      <button class="btn btn-dim" onclick="discardSave()">Discard Save</button>
+    </div>
+  </div>
+
+  <div class="win-panel" style="max-width:560px">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">📁</span>
+      <span class="win-titlebar-text">Open — Questions File</span>
+    </div>
+    <div class="win-body">
+      <p>Select or drop your CSV file to load question data.<br>
+         Format: <code>category,points,question,answer</code></p>
+      <div id="drop-zone" onclick="document.getElementById('csv-file-input').click()">
+        <div class="dz-icon">📄</div>
+        <div class="dz-label">Drop CSV Here</div>
+        <div class="dz-sub">or click to browse</div>
+      </div>
+      <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none"
+             onchange="handleFileSelect(event)">
+      <div id="csv-error"></div>
+      <div id="csv-preview"></div>
+      <button class="btn btn-gold" id="csv-continue-btn" style="display:none" onclick="showSetup()">
+        Continue &rarr;
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PLAYER SETUP SCREEN ── -->
+<div id="setup-screen" class="screen">
+  <div class="win-panel" style="max-width:460px">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">👤</span>
+      <span class="win-titlebar-text">Player Setup</span>
+    </div>
+    <div class="win-body">
+      <p>Enter each player's name, then start the game.</p>
+      <div id="player-list"></div>
+      <div class="action-row">
+        <button class="btn btn-ghost" onclick="addPlayerRow()">+ Add Player</button>
+        <button class="btn btn-gold" id="start-btn" onclick="startGame()" disabled>Start Game</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GAME BOARD ── -->
+<div id="board-container">
+  <div id="board-window">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">🎯</span>
+      <span class="win-titlebar-text">Game Board</span>
+      <button class="win-btn btn-ghost" style="width:auto;padding:0 8px;font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;height:16px;"
+              onclick="newGame()">New Game</button>
+    </div>
+    <div id="board-inner">
+      <div id="board"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ── -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div id="modal-titlebar">
+      <span id="modal-title">Point Collectors</span>
+      <button id="modal-close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body">
+
+      <!-- Daily Double: pick wagering player + wager -->
+      <div id="dd-section">
+        <div id="dd-banner">Daily Double!</div>
+        <div id="dd-cat"></div>
+        <div class="sublabel">Who is wagering?</div>
+        <div id="dd-player-btns"></div>
+        <div id="dd-wager-section">
+          <div class="sublabel">Enter wager</div>
+          <div id="dd-wager-range"></div>
+          <input type="number" id="dd-wager-input" placeholder="0" oninput="checkWagerValid()">
+          <div id="dd-confirm-area">
+            <button class="btn btn-dd" id="dd-confirm-btn" disabled onclick="confirmDDWager()">
+              Confirm Wager
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question + answer reveal -->
+      <div id="question-section">
+        <div id="modal-category"></div>
+        <div id="modal-points"></div>
+        <div id="final-badge">&#11088; Final Category Question</div>
+        <div class="win-divider"></div>
+        <div id="modal-question"></div>
+        <div class="answer-label" id="answer-label" style="display:none">Answer</div>
+        <div id="modal-answer"></div>
+        <div id="point-assign">
+          <div class="sublabel" id="point-assign-label">Award points to</div>
+          <div id="player-btns"></div>
+        </div>
+        <div id="swap-section">
+          <div class="win-divider"></div>
+          <div class="sublabel" style="margin-bottom:10px">Select two players to swap scores</div>
+          <div id="swap-player-btns"></div>
+        </div>
+        <div id="modal-actions"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── RESET MODAL ── -->
+<div id="reset-overlay">
+  <div id="reset-modal">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">↩</span>
+      <span class="win-titlebar-text">Reset Question</span>
+      <button class="win-btn" onclick="closeResetModal()">✕</button>
+    </div>
+    <div id="reset-body">
+      <div id="reset-info"></div>
+      <div id="reset-what"></div>
+      <div id="reset-actions">
+        <button class="btn btn-red" onclick="confirmReset()">↩ Reset</button>
+        <button class="btn btn-dim" onclick="closeResetModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────
+let questions = [];
+let categories = [];
+let byCategory = {};
+let done = new Set();
+let dailyDoubles = new Set();
+
+let currentKey = null;
+let currentPoints = 0;
+let isDailyDouble = false;
+let currentWager = 0;
+let currentWagerPlayerIdx = null;
+
+let players = [];
+let selectedPlayer = null;
+let isFinalInCategory = false;
+let swapPlayers = new Set();
+let history = [];
+let resetTargetKey = null;
+
+// ── CSV PARSING ───────────────────────────────────────
+function parseCSVRow(line) {
+  const fields = [];
+  let cur = '';
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (c === ',' && !inQ) {
+      fields.push(cur); cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  fields.push(cur);
+  return fields;
+}
+
+function parseCSV(text) {
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const result = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const f = parseCSVRow(line);
+    if (f.length < 3) continue;
+    const cat = f[0].trim();
+    if (i === 0 && cat.toLowerCase() === 'category') continue;
+    const pts = parseInt(f[1].trim().replace(/[^0-9]/g, ''), 10);
+    const question = f[2].trim();
+    const answer = (f[3] || '').trim() || null;
+    const question_image = (f[4] || '').trim() || null;
+    const answer_image   = (f[5] || '').trim() || null;
+    if (!cat || isNaN(pts) || !question) continue;
+    result.push({ category: cat, points: pts, question, answer, question_image, answer_image });
+  }
+  return result;
+}
+
+// ── CSV LOAD UI ───────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) loadFile(file);
+});
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) loadFile(file);
+}
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => processCSV(e.target.result, file.name);
+  reader.readAsText(file);
+}
+
+function processCSV(text, filename) {
+  const errEl = document.getElementById('csv-error');
+  const previewEl = document.getElementById('csv-preview');
+  const continueBtn = document.getElementById('csv-continue-btn');
+  errEl.style.display = 'none';
+
+  let parsed;
+  try { parsed = parseCSV(text); }
+  catch (err) {
+    showCSVError('Parse error: ' + err.message);
+    previewEl.style.display = 'none';
+    continueBtn.style.display = 'none';
+    return;
+  }
+
+  if (parsed.length === 0) {
+    showCSVError('No valid rows found. Expected: category,points,question,answer');
+    previewEl.style.display = 'none';
+    continueBtn.style.display = 'none';
+    return;
+  }
+
+  questions = parsed;
+  const cats = [...new Set(parsed.map(q => q.category))];
+  const minPts = Math.min(...parsed.map(q => q.points));
+  const maxPts = Math.max(...parsed.map(q => q.points));
+
+  const withImages = parsed.filter(q => q.question_image || q.answer_image).length;
+  previewEl.innerHTML = `
+    <h3>Loaded: ${esc(filename)}</h3>
+    <div class="preview-stat">Questions: <span>${parsed.length}</span></div>
+    <div class="preview-stat">Categories (${cats.length}): <span>${cats.map(esc).join(', ')}</span></div>
+    <div class="preview-stat">Point range: <span>$${minPts} &ndash; $${maxPts}</span></div>
+    ${withImages ? `<div class="preview-stat">Images: <span>${withImages} question${withImages !== 1 ? 's' : ''}</span></div>` : ''}
+  `;
+  previewEl.style.display = 'block';
+  continueBtn.style.display = 'inline-block';
+
+  dropZone.querySelector('.dz-icon').textContent = '✅';
+  dropZone.querySelector('.dz-label').textContent = esc(filename);
+  dropZone.querySelector('.dz-sub').textContent = 'Click to choose a different file';
+  setStatus('File loaded: ' + esc(filename));
+}
+
+function showCSVError(msg) {
+  const el = document.getElementById('csv-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function showSetup() {
+  setScreen('csv-screen', false);
+  setScreen('setup-screen', true);
+  if (document.querySelectorAll('.player-row').length === 0) {
+    addPlayerRow(); addPlayerRow(); addPlayerRow(); addPlayerRow();
+  }
+  setStatus('Player setup');
+}
+
+// ── PLAYER SETUP ──────────────────────────────────────
+function addPlayerRow() {
+  const list = document.getElementById('player-list');
+  const row = document.createElement('div');
+  row.className = 'player-row';
+  row.innerHTML = `
+    <input class="player-input" type="text" placeholder="Player name..." maxlength="20"
+      oninput="checkStartable()" onkeydown="if(event.key==='Enter') addPlayerRow()">
+    <button class="remove-btn" onclick="this.closest('.player-row').remove(); checkStartable()">✕</button>
+  `;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+  checkStartable();
+}
+
+function checkStartable() {
+  const any = [...document.querySelectorAll('.player-input')].some(i => i.value.trim());
+  document.getElementById('start-btn').disabled = !any;
+}
+
+function startGame() {
+  const names = [...document.querySelectorAll('.player-input')]
+    .map(i => i.value.trim()).filter(Boolean);
+  if (!names.length) return;
+
+  players = names.map(name => ({ name, score: 0 }));
+  done = new Set();
+  history = [];
+
+  categories = [...new Set(questions.map(q => q.category))];
+  byCategory = {};
+  categories.forEach(c => {
+    byCategory[c] = questions
+      .filter(q => q.category === c)
+      .sort((a, b) => a.points - b.points);
+  });
+
+  assignDailyDoubles();
+
+  setScreen('setup-screen', false);
+  document.getElementById('board-container').classList.add('visible');
+  document.getElementById('scoreboard').classList.add('visible');
+  renderScoreboard();
+  buildBoard();
+  saveState();
+  setStatus('Game in progress — ' + names.join(', '));
+}
+
+function newGame() {
+  if (!confirm('Start a new game? This will reset all scores and return to the file loader.')) return;
+  clearSave();
+  done = new Set();
+  history = [];
+  players = [];
+  questions = [];
+  document.getElementById('player-list').innerHTML = '';
+  document.getElementById('board-container').classList.remove('visible');
+  document.getElementById('scoreboard').classList.remove('visible');
+  // Reset drop zone
+  document.getElementById('drop-zone').querySelector('.dz-icon').textContent = '📄';
+  document.getElementById('drop-zone').querySelector('.dz-label').textContent = 'Drop CSV Here';
+  document.getElementById('drop-zone').querySelector('.dz-sub').textContent = 'or click to browse';
+  document.getElementById('csv-preview').style.display = 'none';
+  document.getElementById('csv-continue-btn').style.display = 'none';
+  document.getElementById('csv-error').style.display = 'none';
+  document.getElementById('csv-file-input').value = '';
+  document.getElementById('resume-panel').classList.remove('visible');
+  setScreen('csv-screen', true);
+  setStatus('Ready');
+}
+
+// ── SCOREBOARD ────────────────────────────────────────
+function renderScoreboard() {
+  const maxScore = Math.max(...players.map(p => p.score));
+  document.getElementById('scoreboard').innerHTML = players.map(p => `
+    <div class="score-chip ${p.score === maxScore && maxScore > 0 ? 'leader' : ''}">
+      <span class="sc-name">${esc(p.name)}</span>
+      <span class="sc-pts">${p.score}</span>
+    </div>
+  `).join('');
+}
+
+// ── DAILY DOUBLES ─────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function assignDailyDoubles() {
+  dailyDoubles = new Set();
+  const ddCount = Math.floor(categories.length / 2);
+  shuffle(categories).slice(0, ddCount).forEach(cat => {
+    const rowIdx = Math.floor(Math.random() * byCategory[cat].length);
+    dailyDoubles.add(`${cat}|||${rowIdx}`);
+  });
+}
+
+// ── BOARD ─────────────────────────────────────────────
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  board.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
+
+  categories.forEach(cat => {
+    const h = document.createElement('div');
+    h.className = 'cat-header';
+    h.textContent = cat;
+    board.appendChild(h);
+  });
+
+  const maxQ = Math.max(...categories.map(c => byCategory[c].length));
+  for (let row = 0; row < maxQ; row++) {
+    categories.forEach(cat => {
+      const cell = document.createElement('div');
+      const qs = byCategory[cat];
+      if (row < qs.length) {
+        const q = qs[row];
+        const key = `${cat}|||${row}`;
+        const isDone = done.has(key);
+        const isDD = dailyDoubles.has(key);
+        cell.className = 'cell' + (isDone ? ' done' : '');
+        cell.textContent = isDone ? '✓' : `$${q.points}`;
+        if (isDone) {
+          cell.onclick = () => openResetModal(key);
+          cell.title = 'Click to reset this question';
+        } else {
+          cell.onclick = () => openModal(cat, row, key, q.points, isDD);
+        }
+      } else {
+        cell.className = 'cell done';
+        cell.style.opacity = '0';
+        cell.style.pointerEvents = 'none';
+      }
+      board.appendChild(cell);
+    });
+  }
+}
+
+// ── MODAL ─────────────────────────────────────────────
+function openModal(cat, idx, key, pts, isDD) {
+  hideClippy();
+  currentKey = key;
+  currentPoints = pts;
+  isDailyDouble = isDD;
+  selectedPlayer = null;
+  currentWager = 0;
+  currentWagerPlayerIdx = null;
+  swapPlayers = new Set();
+  // Final question = every other question in this category is already done
+  isFinalInCategory = byCategory[cat].every((q, i) => i === idx || done.has(`${cat}|||${i}`));
+
+  document.getElementById('modal-overlay').classList.add('open');
+
+  if (isDD) {
+    showDDPhase(cat);
+  } else {
+    showQuestion();
+  }
+}
+
+function showDDPhase(cat) {
+  document.getElementById('modal-title').textContent = 'Daily Double!';
+  document.getElementById('dd-section').style.display = 'block';
+  document.getElementById('question-section').style.display = 'none';
+  document.getElementById('dd-cat').textContent = cat.toUpperCase();
+  document.getElementById('dd-wager-section').style.display = 'none';
+  document.getElementById('dd-confirm-btn').disabled = true;
+
+  document.getElementById('dd-player-btns').innerHTML = players.map((p, i) =>
+    `<button class="dd-player-btn" id="dd-pb-${i}" onclick="selectDDPlayer(${i})">${esc(p.name)}</button>`
+  ).join('');
+}
+
+function selectDDPlayer(idx) {
+  document.querySelectorAll('.dd-player-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`dd-pb-${idx}`).classList.add('selected');
+  currentWagerPlayerIdx = idx;
+
+  const score = players[idx].score;
+  const max = Math.max(score, 1);
+  document.getElementById('dd-wager-range').textContent =
+    `Enter $1 – $${max}  (current score: $${score})`;
+
+  const inp = document.getElementById('dd-wager-input');
+  inp.min = 1;
+  inp.max = max;
+  inp.value = '';
+  document.getElementById('dd-confirm-btn').disabled = true;
+  document.getElementById('dd-wager-section').style.display = 'block';
+  inp.focus();
+}
+
+function checkWagerValid() {
+  const inp = document.getElementById('dd-wager-input');
+  const val = parseInt(inp.value, 10);
+  document.getElementById('dd-confirm-btn').disabled =
+    isNaN(val) || val < +inp.min || val > +inp.max;
+}
+
+function confirmDDWager() {
+  currentWager = parseInt(document.getElementById('dd-wager-input').value, 10);
+  showQuestion();
+}
+
+function showQuestion() {
+  const [cat] = currentKey.split('|||');
+  const [, idxStr] = currentKey.split('|||');
+  const q = byCategory[cat][+idxStr];
+
+  document.getElementById('modal-title').textContent = cat.toUpperCase();
+  document.getElementById('dd-section').style.display = 'none';
+  document.getElementById('question-section').style.display = 'block';
+
+  document.getElementById('modal-category').textContent = cat.toUpperCase();
+
+  if (isDailyDouble) {
+    document.getElementById('modal-points').innerHTML =
+      `<span style="font-family:'VT323',monospace;color:var(--usf-au)">DAILY DOUBLE</span><br>` +
+      `<span style="font-size:1.1rem;font-family:'Courier New',monospace;color:var(--usf-g)">` +
+      `Wager: $${currentWager}</span>`;
+  } else {
+    document.getElementById('modal-points').textContent = `$${currentPoints}`;
+  }
+
+  document.getElementById('final-badge').style.display = isFinalInCategory && !isDailyDouble ? 'block' : 'none';
+  document.getElementById('modal-question').innerHTML =
+    (q.question ? `<span>${esc(q.question)}</span>` : '') +
+    (q.question_image ? renderImg(q.question_image) : '');
+  document.getElementById('modal-answer').style.display = 'none';
+  document.getElementById('modal-answer').textContent = '';
+  document.getElementById('answer-label').style.display = 'none';
+  document.getElementById('point-assign').classList.remove('visible');
+  document.getElementById('swap-section').style.display = 'none';
+  document.getElementById('modal-actions').innerHTML =
+    `<button class="btn btn-gold" onclick="revealAnswer()">Reveal Answer</button>`;
+}
+
+function revealAnswer() {
+  const [cat, idxStr] = currentKey.split('|||');
+  const q = byCategory[cat][+idxStr];
+
+  document.getElementById('answer-label').style.display = 'block';
+  const ansEl = document.getElementById('modal-answer');
+  ansEl.innerHTML =
+    `<span>${esc(q.answer || '(No answer recorded \u2014 group decides!)')}</span>` +
+    (q.answer_image ? renderImg(q.answer_image) : '');
+  ansEl.style.display = 'block';
+
+  document.getElementById('point-assign').classList.add('visible');
+
+  if (isDailyDouble) {
+    document.getElementById('point-assign-label').textContent = 'Wagering player';
+    document.getElementById('player-btns').innerHTML = players.map((p, i) =>
+      i === currentWagerPlayerIdx
+        ? `<button class="player-award-btn dd-wagered" disabled>${esc(p.name)}</button>`
+        : `<button class="player-award-btn" disabled style="opacity:0.2">${esc(p.name)}</button>`
+    ).join('');
+    document.getElementById('modal-actions').innerHTML = `
+      <button class="btn btn-green" onclick="ddCorrect()">&#10003; Correct (+$${currentWager})</button>
+      <button class="btn btn-red"   onclick="ddWrong()">&#10007; Wrong (&minus;$${currentWager})</button>
+    `;
+  } else {
+    document.getElementById('point-assign-label').textContent = 'Award points to';
+    document.getElementById('player-btns').innerHTML = players.map((p, i) =>
+      `<button class="player-award-btn" id="award-btn-${i}" onclick="togglePlayer(${i})">${esc(p.name)}</button>`
+    ).join('');
+    showNormalActions();
+  }
+}
+
+function showNormalActions() {
+  document.getElementById('modal-actions').innerHTML = isFinalInCategory ? `
+    <button class="btn btn-green" id="done-btn" onclick="awardAndClose()" disabled>&#10003; Done</button>
+    <button class="btn btn-swap"  onclick="enterSwapMode()">&#8596; Swap Scores</button>
+    <button class="btn btn-dim"   onclick="noPointsAndClose()">No Points</button>
+  ` : `
+    <button class="btn btn-green" id="done-btn" onclick="awardAndClose()" disabled>&#10003; Done</button>
+    <button class="btn btn-dim"   onclick="noPointsAndClose()">No Points</button>
+  `;
+}
+
+function enterSwapMode() {
+  swapPlayers = new Set();
+  document.getElementById('point-assign').classList.remove('visible');
+  document.getElementById('swap-section').style.display = 'block';
+  document.getElementById('swap-player-btns').innerHTML = players.map((p, i) => `
+    <button class="swap-player-btn" id="swap-btn-${i}" onclick="toggleSwapPlayer(${i})">
+      ${esc(p.name)}<span class="swap-score">$${p.score}</span>
+    </button>
+  `).join('');
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-swap" id="swap-confirm-btn" disabled onclick="confirmSwap()">&#8596; Confirm Swap</button>
+    <button class="btn btn-dim" onclick="cancelSwap()">Cancel</button>
+  `;
+}
+
+function toggleSwapPlayer(idx) {
+  const btn = document.getElementById(`swap-btn-${idx}`);
+  if (swapPlayers.has(idx)) {
+    swapPlayers.delete(idx);
+    btn.classList.remove('selected');
+  } else {
+    if (swapPlayers.size >= 2) return;
+    swapPlayers.add(idx);
+    btn.classList.add('selected');
+  }
+  // Disable unchosen buttons once 2 are selected
+  const full = swapPlayers.size === 2;
+  players.forEach((p, i) => {
+    const b = document.getElementById(`swap-btn-${i}`);
+    if (b) b.disabled = full && !swapPlayers.has(i);
+  });
+  document.getElementById('swap-confirm-btn').disabled = swapPlayers.size !== 2;
+}
+
+function confirmSwap() {
+  const [p1, p2] = [...swapPlayers];
+  history.push({ key: currentKey, type: 'swap', p1, p2, p1score: players[p1].score, p2score: players[p2].score });
+  const tmp = players[p1].score;
+  players[p1].score = players[p2].score;
+  players[p2].score = tmp;
+  renderScoreboard();
+  done.add(currentKey);
+  saveState();
+  closeModal();
+}
+
+function cancelSwap() {
+  swapPlayers = new Set();
+  document.getElementById('swap-section').style.display = 'none';
+  document.getElementById('point-assign').classList.add('visible');
+  showNormalActions();
+}
+
+function togglePlayer(idx) {
+  if (selectedPlayer === idx) {
+    document.getElementById(`award-btn-${idx}`).classList.remove('selected');
+    selectedPlayer = null;
+  } else {
+    if (selectedPlayer !== null) {
+      const prev = document.getElementById(`award-btn-${selectedPlayer}`);
+      if (prev) prev.classList.remove('selected');
+    }
+    selectedPlayer = idx;
+    document.getElementById(`award-btn-${idx}`).classList.add('selected');
+  }
+  const doneBtn = document.getElementById('done-btn');
+  if (doneBtn) doneBtn.disabled = selectedPlayer === null;
+}
+
+function awardAndClose() {
+  if (selectedPlayer !== null) {
+    history.push({ key: currentKey, type: 'award', playerIdx: selectedPlayer, delta: currentPoints });
+    players[selectedPlayer].score += currentPoints;
+    renderScoreboard();
+  }
+  done.add(currentKey);
+  saveState();
+  closeModal();
+  maybeShowClippy(selectedPlayer !== null);
+}
+
+function noPointsAndClose() {
+  history.push({ key: currentKey, type: 'no_points' });
+  done.add(currentKey);
+  saveState();
+  closeModal();
+  maybeShowClippy(false);
+}
+
+function ddCorrect() {
+  history.push({ key: currentKey, type: 'award', playerIdx: currentWagerPlayerIdx, delta: currentWager });
+  players[currentWagerPlayerIdx].score += currentWager;
+  renderScoreboard();
+  done.add(currentKey);
+  saveState();
+  closeModal();
+  maybeShowClippy(true);
+}
+
+function ddWrong() {
+  history.push({ key: currentKey, type: 'award', playerIdx: currentWagerPlayerIdx, delta: -currentWager });
+  players[currentWagerPlayerIdx].score -= currentWager;
+  renderScoreboard();
+  done.add(currentKey);
+  saveState();
+  closeModal();
+  maybeShowClippy(false);
+}
+
+function openResetModal(key) {
+  const [cat, idxStr] = key.split('|||');
+  const q = byCategory[cat][+idxStr];
+  const entry = history.find(h => h.key === key);
+
+  document.getElementById('reset-info').innerHTML =
+    `<strong>${esc(cat)}</strong> &mdash; $${q.points}`;
+
+  let whatHtml;
+  if (!entry) {
+    whatHtml = 'No record found. Only the completion status will be cleared.';
+  } else if (entry.type === 'award') {
+    const pname = esc(players[entry.playerIdx].name);
+    if (entry.delta > 0) {
+      whatHtml = `<strong>${pname}</strong> was awarded <strong>$${entry.delta}</strong>.`;
+    } else {
+      whatHtml = `<strong>${pname}</strong> lost <strong>$${Math.abs(entry.delta)}</strong> (Daily Double — wrong answer).`;
+    }
+  } else if (entry.type === 'no_points') {
+    whatHtml = 'No points were awarded.';
+  } else if (entry.type === 'swap') {
+    const p1n = esc(players[entry.p1].name);
+    const p2n = esc(players[entry.p2].name);
+    whatHtml = `<strong>${p1n}</strong> and <strong>${p2n}</strong> swapped scores ($${entry.p1score} \u2194 $${entry.p2score}).`;
+  }
+
+  resetTargetKey = key;
+  document.getElementById('reset-what').innerHTML = whatHtml;
+  document.getElementById('reset-overlay').classList.add('open');
+}
+
+function closeResetModal() {
+  document.getElementById('reset-overlay').classList.remove('open');
+  resetTargetKey = null;
+}
+
+function confirmReset() {
+  if (!resetTargetKey) return;
+  const key = resetTargetKey;
+  const entry = history.find(h => h.key === key);
+
+  if (entry) {
+    if (entry.type === 'award') {
+      players[entry.playerIdx].score -= entry.delta;
+    } else if (entry.type === 'swap') {
+      players[entry.p1].score = entry.p1score;
+      players[entry.p2].score = entry.p2score;
+    }
+    history = history.filter(h => h.key !== key);
+  }
+
+  done.delete(key);
+  renderScoreboard();
+  closeResetModal();
+  buildBoard();
+  saveState();
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  buildBoard();
+}
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+
+// ── UTILS ─────────────────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderImg(path) {
+  const safe = esc(path);
+  return `<img class="modal-img" src="${safe}" alt=""
+    onerror="this.insertAdjacentHTML('afterend','<div class=\\'modal-img-err\\'>&#9888; Image not found: ${safe}</div>');this.remove()">`;
+}
+
+function setScreen(id, visible) {
+  const el = document.getElementById(id);
+  if (visible) el.classList.add('active');
+  else el.classList.remove('active');
+}
+
+function setStatus(msg) {
+  document.getElementById('header-status').textContent = msg;
+}
+
+// ── CLIPPY ─────────────────────────────────────────────
+const clippyQuipsCorrect = [
+  "It looks like you answered correctly. Shall I format your victory lap?",
+  "It looks like someone just scored points. Would you like a certificate?",
+  "Correct! It looks like you'd like to gloat. I can help with that.",
+  "It looks like you know things. Impressive.",
+  "It looks like you've done this before.",
+  "Points awarded. It looks like you knew that one.",
+  "It looks like you're on a roll. Would you like help staying there?",
+  "Correct answer logged. Printing trophy... [ERROR: no printer found]",
+  "It looks like someone's been studying.",
+  "It looks like you'd like to continue winning. I'll allow it.",
+  "Answer detected as correct. Updating internal scorecard...",
+  "It looks like you're dangerous. Noted.",
+  "It looks like the rest of the group should be nervous.",
+  "Correct. It looks like you'd like more of that feeling.",
+  "It looks like you just peaked. Or maybe not. We'll see.",
+];
+
+const clippyQuipsIncorrect = [
+  "It looks like you're not getting points. Would you like help with that?",
+  "It looks like you guessed. I have no further comment.",
+  "No points awarded. It looks like you'd like to try a different strategy.",
+  "It looks like the correct answer escaped you. Shall I find it?",
+  "It looks like you're building character.",
+  "It looks like that one got away. I've seen worse. Not often, but I've seen it.",
+  "No points. It looks like you'd like to move on. I recommend it.",
+  "Answer not detected as correct. Recalibrating expectations...",
+  "It looks like you'd benefit from a hint. Unfortunately the round is over.",
+  "It looks like the answer surprised you too.",
+  "It looks like you're familiar with the topic. Just not that specific part.",
+  "It looks like a wrong answer. I could be wrong. I'm not.",
+  "It looks like someone would like a do-over. [Yes] [No] [Please]",
+  "It looks like the points went elsewhere. As they do.",
+  "Wrong answer logged. It happens to the best of us. Just not usually this often.",
+];
+
+let clippyCooldown = 2;
+
+function maybeShowClippy(correct) {
+  if (clippyCooldown > 0) { clippyCooldown--; return; }
+  if (Math.random() < 0.5) {
+    const pool = correct ? clippyQuipsCorrect : clippyQuipsIncorrect;
+    const quip = pool[Math.floor(Math.random() * pool.length)];
+    document.getElementById('clippy-bubble').textContent = quip;
+    document.getElementById('clippy-wrap').classList.add('visible');
+    clippyCooldown = 2;
+  }
+}
+
+function hideClippy() {
+  document.getElementById('clippy-wrap').classList.remove('visible');
+}
+
+document.addEventListener('contextmenu', e => {
+  if (e.target.closest('#clippy-wrap')) {
+    e.preventDefault();
+    hideClippy();
+  }
+});
+
+// ── SAVE STATE ─────────────────────────────────────────
+const SAVE_KEY = 'jeopardy_save';
+
+function saveState() {
+  if (!players.length) return;
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      version: 1,
+      savedAt: Date.now(),
+      questions,
+      players,
+      categories,
+      done: [...done],
+      dailyDoubles: [...dailyDoubles],
+      history
+    }));
+  } catch(e) { /* quota or private mode — fail silently */ }
+}
+
+function clearSave() {
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+}
+
+function formatTimeAgo(ts) {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function checkForSave() {
+  let raw;
+  try { raw = localStorage.getItem(SAVE_KEY); } catch(e) { return; }
+  if (!raw) return;
+  let state;
+  try { state = JSON.parse(raw); } catch(e) { clearSave(); return; }
+  if (!state || state.version !== 1 || !state.players || !state.questions) { clearSave(); return; }
+
+  const panel = document.getElementById('resume-panel');
+  panel.classList.add('visible');
+
+  document.getElementById('resume-scores').innerHTML = state.players.map(p =>
+    `<div class="resume-chip"><div class="rc-name">${esc(p.name)}</div><div class="rc-score">$${p.score}</div></div>`
+  ).join('');
+  document.getElementById('resume-meta').textContent =
+    `${formatTimeAgo(state.savedAt)} \u2014 ${state.done.length} of ${state.questions.length} questions done`;
+}
+
+function resumeGame() {
+  let raw;
+  try { raw = localStorage.getItem(SAVE_KEY); } catch(e) { return; }
+  if (!raw) return;
+  let state;
+  try { state = JSON.parse(raw); } catch(e) { clearSave(); return; }
+
+  questions     = state.questions;
+  players       = state.players;
+  categories    = state.categories;
+  done          = new Set(state.done);
+  dailyDoubles  = new Set(state.dailyDoubles);
+  history       = state.history || [];
+
+  byCategory = {};
+  categories.forEach(c => {
+    byCategory[c] = questions.filter(q => q.category === c).sort((a, b) => a.points - b.points);
+  });
+
+  setScreen('csv-screen', false);
+  document.getElementById('board-container').classList.add('visible');
+  document.getElementById('scoreboard').classList.add('visible');
+  renderScoreboard();
+  buildBoard();
+  setStatus('Game resumed \u2014 ' + players.map(p => p.name).join(', '));
+}
+
+function discardSave() {
+  if (!confirm('Discard the saved game? This cannot be undone.')) return;
+  clearSave();
+  document.getElementById('resume-panel').classList.remove('visible');
+}
+
+// Check for a saved game on load
+checkForSave();
+
+// ── FULLSCREEN ─────────────────────────────────────────
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  document.getElementById('maximize-btn').textContent =
+    document.fullscreenElement ? '❐' : '□';
+});
+</script>
+
+<!-- CLIPPY -->
+<div id="clippy-wrap">
+  <div id="clippy-bubble"></div>
+  <svg viewBox="0 0 50 82" width="216" height="351" xmlns="http://www.w3.org/2000/svg">
+    <!-- Paperclip wire -->
+    <path d="M 12 34 C 12 8 38 8 38 34 L 38 62 C 38 74 12 74 12 62 L 12 24 C 12 14 32 14 32 24 L 32 58 C 32 67 18 67 18 58 L 18 36"
+          fill="none" stroke="#aaaaaa" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Left eye -->
+    <circle cx="19" cy="21" r="3.2" fill="white" stroke="#444" stroke-width="1"/>
+    <circle cx="20" cy="21" r="1.6" fill="#222"/>
+    <!-- Right eye -->
+    <circle cx="31" cy="21" r="3.2" fill="white" stroke="#444" stroke-width="1"/>
+    <circle cx="32" cy="21" r="1.6" fill="#222"/>
+    <!-- Eyebrows (neutral/curious) -->
+    <path d="M 15 16 Q 19 13 23 16" fill="none" stroke="#444" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M 27 16 Q 31 13 35 16" fill="none" stroke="#444" stroke-width="1.6" stroke-linecap="round"/>
+    <!-- Smile -->
+    <path d="M 20 27 Q 25 31 30 27" fill="none" stroke="#444" stroke-width="1.3" stroke-linecap="round"/>
+  </svg>
+</div>
+</body>
+</html>
