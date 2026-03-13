@@ -5,20 +5,20 @@
 //   3. Go to Build → Realtime Database → Create database (start in test mode)
 //   4. Replace every 'YOUR_...' value with your actual config
 const FIREBASE_CONFIG = {
-  apiKey:            'YOUR_API_KEY',
-  authDomain:        'YOUR_PROJECT_ID.firebaseapp.com',
-  databaseURL:       'https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com',
-  projectId:         'YOUR_PROJECT_ID',
-  storageBucket:     'YOUR_PROJECT_ID.appspot.com',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId:             'YOUR_APP_ID'
+  apiKey:            'AIzaSyA3NaSF6IVOCttYSJV7nbTTBplh14QiyOc',
+  authDomain:        'realest-trivia.firebaseapp.com',
+  databaseURL:       'https://realest-trivia-default-rtdb.firebaseio.com',
+  projectId:         'realest-trivia',
+  storageBucket:     'realest-trivia.firebasestorage.app',
+  messagingSenderId: '26095770191',
+  appId:             '1:26095770191:web:d8eab61a9339118106e83a'
 };
 
 let _db = null;
 
 function initFirebase() {
   if (_db) return true;
-  if (FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
+  if (!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith('YOUR_')) {
     console.info('[Firebase] Config not set — multiplayer disabled.');
     return false;
   }
