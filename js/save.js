@@ -15,6 +15,8 @@ function saveState() {
       history
     }));
   } catch(e) { /* quota or private mode — fail silently */ }
+  // Mirror to Firebase if hosting
+  if (typeof syncToFirebase === 'function') syncToFirebase();
 }
 
 function clearSave() {

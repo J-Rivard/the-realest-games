@@ -18,6 +18,13 @@ function openModal(cat, idx, key, pts, isDD) {
   } else {
     showQuestion();
   }
+
+  syncModalToFirebase({
+    open: true, key, phase: isDailyDouble ? 'dd-select' : 'question',
+    isDailyDouble, currentWager: 0, wagerPlayerIdx: null,
+    answerRevealed: false, answerText: null,
+    currentPoints: pts, isFinalInCategory
+  });
 }
 
 function showDDPhase(cat) {
@@ -62,6 +69,12 @@ function checkWagerValid() {
 function confirmDDWager() {
   currentWager = parseInt(document.getElementById('dd-wager-input').value, 10);
   showQuestion();
+  syncModalToFirebase({
+    open: true, key: currentKey, phase: 'question',
+    isDailyDouble: true, currentWager, wagerPlayerIdx: currentWagerPlayerIdx,
+    answerRevealed: false, answerText: null,
+    currentPoints, isFinalInCategory
+  });
 }
 
 function showQuestion() {
@@ -109,6 +122,14 @@ function revealAnswer() {
   ansEl.style.display = 'block';
 
   document.getElementById('point-assign').classList.add('visible');
+
+  syncModalToFirebase({
+    open: true, key: currentKey, phase: 'question',
+    isDailyDouble, currentWager, wagerPlayerIdx: currentWagerPlayerIdx,
+    answerRevealed: true,
+    answerText: q.answer || '(No answer recorded \u2014 group decides!)',
+    currentPoints, isFinalInCategory
+  });
 
   if (isDailyDouble) {
     document.getElementById('point-assign-label').textContent = 'Wagering player';
@@ -251,10 +272,16 @@ function ddWrong() {
 }
 
 function closeModal() {
+  syncModalToFirebase({
+    open: false, key: null, phase: null,
+    isDailyDouble: false, currentWager: 0, wagerPlayerIdx: null,
+    answerRevealed: false, answerText: null,
+    currentPoints: 0, isFinalInCategory: false
+  });
   document.getElementById('modal-overlay').classList.remove('open');
   buildBoard();
 }
 
 document.getElementById('modal-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
+  if (e.target === document.getElementById('modal-overlay') && !isViewing) closeModal();
 });

@@ -17,3 +17,9 @@ let isFinalInCategory = false;
 let swapPlayers = new Set();
 let history = [];
 let resetTargetKey = null;
+
+// ── MULTIPLAYER STATE ──────────────────────────────────
+let isHosting = false;
+let isViewing = false;
+let currentRoomCode = null;
+let viewerUnsubscribe = null;

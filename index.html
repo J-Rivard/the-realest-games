@@ -7,6 +7,9 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23006747'/%3E%3Ctext x='16' y='19' font-family='serif' font-size='11' font-weight='bold' text-anchor='middle' fill='%23cfc493' transform='rotate(38,16,16)'%3EOTR%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<!-- Firebase SDK (compat — works with regular script tags) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -25,6 +28,7 @@
     </div>
   </div>
   <div class="header-status" id="header-status">Ready</div>
+  <div id="mp-badge"></div>
 </header>
 
 <!-- ── SCOREBOARD ── -->
@@ -69,6 +73,26 @@
       </button>
     </div>
   </div>
+
+  <!-- Viewer join panel -->
+  <div class="csv-or-sep">&mdash; or &mdash;</div>
+  <div class="win-panel" style="max-width:460px">
+    <div class="win-titlebar" style="background:linear-gradient(to right,#1a3a6a,#2a5aaa)">
+      <span class="win-titlebar-icon">📡</span>
+      <span class="win-titlebar-text">Join as Viewer</span>
+    </div>
+    <div class="win-body">
+      <p>Enter the room code from the host to watch the game live.</p>
+      <div class="viewer-join-row">
+        <input type="text" id="viewer-code-input" class="viewer-code-input"
+               placeholder="OTR-0000" maxlength="8"
+               oninput="this.value=this.value.toUpperCase()"
+               onkeydown="if(event.key==='Enter')joinAsViewer()">
+        <button class="btn btn-blue" id="viewer-join-btn" onclick="joinAsViewer()">Join</button>
+      </div>
+      <div id="viewer-join-error"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ── PLAYER SETUP SCREEN ── -->
@@ -95,7 +119,7 @@
     <div class="win-titlebar">
       <span class="win-titlebar-icon">🎯</span>
       <span class="win-titlebar-text">Game Board</span>
-      <button class="win-btn btn-ghost" style="width:auto;padding:0 8px;font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;height:16px;"
+      <button id="new-game-btn" class="win-btn btn-ghost" style="width:auto;padding:0 8px;font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;height:16px;"
               onclick="newGame()">New Game</button>
     </div>
     <div id="board-inner">
@@ -196,7 +220,7 @@
   </svg>
 </div>
 
-<!-- Scripts — load order matters: state first, save last -->
+<!-- Scripts — load order matters: state first, firebase+sync before save -->
 <script src="js/state.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/csv.js"></script>
@@ -206,6 +230,8 @@
 <script src="js/reset.js"></script>
 <script src="js/clippy.js"></script>
 <script src="js/fullscreen.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/sync.js"></script>
 <script src="js/save.js"></script>
 
 </body>

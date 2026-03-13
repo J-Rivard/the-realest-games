@@ -25,11 +25,13 @@ function startGame() {
   buildBoard();
   saveState();
   setStatus('Game in progress — ' + names.join(', '));
+  startHosting(); // async — room appears once Firebase responds
 }
 
 function newGame() {
   if (!confirm('Start a new game? This will reset all scores and return to the file loader.')) return;
   clearSave();
+  stopHosting(); // async — deletes Firebase room if hosting
   done = new Set();
   history = [];
   players = [];
@@ -84,6 +86,7 @@ function assignDailyDoubles() {
 function buildBoard() {
   const board = document.getElementById('board');
   board.innerHTML = '';
+  board.classList.toggle('viewer-mode', isViewing);
   board.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
 
   categories.forEach(cat => {
@@ -105,11 +108,13 @@ function buildBoard() {
         const isDD = dailyDoubles.has(key);
         cell.className = 'cell' + (isDone ? ' done' : '');
         cell.textContent = isDone ? '✓' : `$${q.points}`;
-        if (isDone) {
-          cell.onclick = () => openResetModal(key);
-          cell.title = 'Click to reset this question';
-        } else {
-          cell.onclick = () => openModal(cat, row, key, q.points, isDD);
+        if (!isViewing) {
+          if (isDone) {
+            cell.onclick = () => openResetModal(key);
+            cell.title = 'Click to reset this question';
+          } else {
+            cell.onclick = () => openModal(cat, row, key, q.points, isDD);
+          }
         }
       } else {
         cell.className = 'cell done';
