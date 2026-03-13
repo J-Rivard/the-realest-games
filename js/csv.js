@@ -112,6 +112,10 @@ function showCSVError(msg) {
 }
 
 function showSetup() {
+  if (initFirebase()) {
+    createLobby();
+    return;
+  }
   setScreen('csv-screen', false);
   setScreen('setup-screen', true);
   if (document.querySelectorAll('.player-row').length === 0) {

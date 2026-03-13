@@ -21,5 +21,6 @@ let resetTargetKey = null;
 // ── MULTIPLAYER STATE ──────────────────────────────────
 let isHosting = false;
 let isViewing = false;
+let isPlayer = false;
 let currentRoomCode = null;
 let viewerUnsubscribe = null;

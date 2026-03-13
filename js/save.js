@@ -86,3 +86,4 @@ function discardSave() {
 
 // Check for a saved game on load
 checkForSave();
+if (!localStorage.getItem(SAVE_KEY) && typeof tryRejoinAsPlayer === 'function') tryRejoinAsPlayer();

@@ -1,6 +1,7 @@
 // ── MODAL ─────────────────────────────────────────────
 function openModal(cat, idx, key, pts, isDD) {
   hideClippy();
+  if (isHosting && currentRoomCode) fbClearBuzzer(currentRoomCode);
   currentKey = key;
   currentPoints = pts;
   isDailyDouble = isDD;

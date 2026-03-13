@@ -12,8 +12,14 @@ function _scrubbedQuestions() {
 }
 
 function _buildBoardState() {
+  // Convert players array → object keyed by id (or fallback key)
+  const playersObj = {};
+  players.forEach((p, i) => {
+    const key = p.id || ('local' + i);
+    playersObj[key] = { name: p.name, score: p.score };
+  });
   return {
-    players,
+    players:      playersObj,
     categories,
     done:         [...done],
     dailyDoubles: [...dailyDoubles],
@@ -83,63 +89,25 @@ async function stopHosting() {
 }
 
 // ── VIEWER ─────────────────────────────────────────────
-async function joinAsViewer() {
-  const input   = document.getElementById('viewer-code-input');
-  const errEl   = document.getElementById('viewer-join-error');
-  const joinBtn = document.getElementById('viewer-join-btn');
-  const code    = (input.value || '').trim().toUpperCase();
-
-  errEl.textContent = '';
-
-  if (!/^OTR-\d{4}$/.test(code)) {
-    errEl.textContent = 'Format must be OTR-0000';
-    return;
-  }
-  if (!initFirebase()) {
-    errEl.textContent = 'Firebase not configured — viewer mode unavailable.';
-    return;
-  }
-
-  joinBtn.disabled    = true;
-  joinBtn.textContent = 'Joining\u2026';
-
-  const exists = await fbRoomExists(code);
-  if (!exists) {
-    errEl.textContent   = 'Room "' + code + '" not found. Check the code.';
-    joinBtn.disabled    = false;
-    joinBtn.textContent = 'Join';
-    return;
-  }
-
-  isViewing      = true;
-  viewerRoomCode = code;
-  _setMpBadge('\uD83D\uDC41  Viewing: ' + code, 'viewing');
-
-  // Hide host-only controls
-  const ngb = document.getElementById('new-game-btn');
-  if (ngb) ngb.style.display = 'none';
-
-  setScreen('csv-screen', false);
-  document.getElementById('board-container').classList.add('visible');
-  document.getElementById('scoreboard').classList.add('visible');
-
-  viewerUnsubscribe = fbSubscribeRoom(code, _applyViewerState);
-  setStatus('Viewing room ' + code);
-}
-
 function _applyViewerState(state) {
   if (!state) {
-    setStatus('Host ended the session.');
-    isViewing      = false;
-    viewerRoomCode = null;
-    if (viewerUnsubscribe) { viewerUnsubscribe(); viewerUnsubscribe = null; }
-    _clearMpBadge();
+    if (typeof _onRoomClosed === 'function') {
+      _onRoomClosed('Host ended the session.');
+    } else {
+      setStatus('Host ended the session.');
+      isViewing = false;
+      if (viewerUnsubscribe) { viewerUnsubscribe(); viewerUnsubscribe = null; }
+      _clearMpBadge();
+    }
     return;
   }
 
-  // Restore board state
+  // Restore board state — parse players from object format
+  const rawPlayers = state.players || {};
   questions    = (state.questions    || []).map(q => ({ ...q }));
-  players      = state.players       || [];
+  players      = Object.entries(rawPlayers)
+    .map(([id, p]) => ({ id, name: p.name, score: p.score }))
+    .sort((a, b) => b.score - a.score);
   categories   = state.categories    || [];
   done         = new Set(state.done  || []);
   dailyDoubles = new Set(state.dailyDoubles || []);
@@ -200,7 +168,7 @@ function _applyViewerState(state) {
 function _setMpBadge(text, mode) {
   const el = document.getElementById('mp-badge');
   el.textContent = text;
-  el.className   = mode; // 'hosting' | 'viewing'
+  el.className   = mode; // 'hosting' | 'viewing' | 'player'
 }
 
 function _clearMpBadge() {

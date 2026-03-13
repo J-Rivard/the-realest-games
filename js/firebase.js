@@ -36,33 +36,58 @@ function generateRoomCode() {
   return 'OTR-' + String(Math.floor(1000 + Math.random() * 9000));
 }
 
-function _roomRef(code) {
+function roomRef(code) {
   return _db.ref('rooms/' + code);
 }
 
 async function fbCreateRoom(code, data) {
-  await _roomRef(code).set(data);
+  await roomRef(code).set(data);
 }
 
 async function fbDeleteRoom(code) {
-  try { await _roomRef(code).remove(); } catch (e) {}
+  try { await roomRef(code).remove(); } catch (e) {}
 }
 
 async function fbRoomExists(code) {
-  const snap = await _roomRef(code).once('value');
+  const snap = await roomRef(code).once('value');
   return snap.exists();
 }
 
+async function fbGetRoom(code) {
+  const snap = await roomRef(code).once('value');
+  return snap.val();
+}
+
 function fbSubscribeRoom(code, callback) {
-  const ref = _roomRef(code);
+  const ref = roomRef(code);
   ref.on('value', snap => callback(snap.val()));
   return () => ref.off('value');
 }
 
 async function fbUpdateModal(code, modalData) {
-  await _roomRef(code).child('modal').set(modalData);
+  await roomRef(code).child('modal').set(modalData);
 }
 
 async function fbUpdateState(code, stateData) {
-  await _roomRef(code).update(stateData);
+  await roomRef(code).update(stateData);
+}
+
+async function fbAddPlayer(code, playerId, data) {
+  await roomRef(code).child('players').child(playerId).set(data);
+}
+
+async function fbRemovePlayer(code, playerId) {
+  await roomRef(code).child('players').child(playerId).remove();
+}
+
+async function fbBuzz(code, playerId, playerName) {
+  const ref = roomRef(code).child('buzzer');
+  await ref.transaction(current => {
+    if (current === null) return { playerId, playerName, buzzedAt: Date.now() };
+    return undefined; // abort if already set
+  });
+}
+
+async function fbClearBuzzer(code) {
+  await roomRef(code).child('buzzer').set(null);
 }

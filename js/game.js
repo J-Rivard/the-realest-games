@@ -1,13 +1,7 @@
 // ── GAME ──────────────────────────────────────────────
-function startGame() {
-  const names = [...document.querySelectorAll('.player-input')]
-    .map(i => i.value.trim()).filter(Boolean);
-  if (!names.length) return;
-
-  players = names.map(name => ({ name, score: 0 }));
+function initGameState() {
   done = new Set();
   history = [];
-
   categories = [...new Set(questions.map(q => q.category))];
   byCategory = {};
   categories.forEach(c => {
@@ -15,8 +9,16 @@ function startGame() {
       .filter(q => q.category === c)
       .sort((a, b) => a.points - b.points);
   });
-
   assignDailyDoubles();
+}
+
+function startGame() {
+  const names = [...document.querySelectorAll('.player-input')]
+    .map(i => i.value.trim()).filter(Boolean);
+  if (!names.length) return;
+
+  players = names.map(name => ({ name, score: 0 }));
+  initGameState();
 
   setScreen('setup-screen', false);
   document.getElementById('board-container').classList.add('visible');
@@ -86,7 +88,8 @@ function assignDailyDoubles() {
 function buildBoard() {
   const board = document.getElementById('board');
   board.innerHTML = '';
-  board.classList.toggle('viewer-mode', isViewing);
+  const readOnly = isViewing || isPlayer;
+  board.classList.toggle('viewer-mode', readOnly);
   board.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
 
   categories.forEach(cat => {
@@ -108,7 +111,7 @@ function buildBoard() {
         const isDD = dailyDoubles.has(key);
         cell.className = 'cell' + (isDone ? ' done' : '');
         cell.textContent = isDone ? '✓' : `$${q.points}`;
-        if (!isViewing) {
+        if (!readOnly) {
           if (isDone) {
             cell.onclick = () => openResetModal(key);
             cell.title = 'Click to reset this question';

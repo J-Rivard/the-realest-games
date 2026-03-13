@@ -34,6 +34,12 @@
 <!-- ── SCOREBOARD ── -->
 <div id="scoreboard"></div>
 
+<!-- ── BUZZER NOTIFICATION (GM view) ── -->
+<div id="buzzer-notification" style="display:none">
+  <span id="buzzer-player-name"></span>
+  <button class="btn btn-dim btn-sm" onclick="clearBuzzer()">Clear</button>
+</div>
+
 <!-- ── CSV LOAD SCREEN ── -->
 <div id="csv-screen" class="screen active">
 
@@ -74,28 +80,26 @@
     </div>
   </div>
 
-  <!-- Viewer join panel -->
+  <!-- Unified join panel (player + viewer) -->
   <div class="csv-or-sep">&mdash; or &mdash;</div>
   <div class="win-panel" style="max-width:460px">
     <div class="win-titlebar" style="background:linear-gradient(to right,#1a3a6a,#2a5aaa)">
       <span class="win-titlebar-icon">📡</span>
-      <span class="win-titlebar-text">Join as Viewer</span>
+      <span class="win-titlebar-text">Join a Game</span>
     </div>
     <div class="win-body">
-      <p>Enter the room code from the host to watch the game live.</p>
-      <div class="viewer-join-row">
-        <input type="text" id="viewer-code-input" class="viewer-code-input"
-               placeholder="OTR-0000" maxlength="8"
-               oninput="this.value=this.value.toUpperCase()"
-               onkeydown="if(event.key==='Enter')joinAsViewer()">
-        <button class="btn btn-blue" id="viewer-join-btn" onclick="joinAsViewer()">Join</button>
+      <p>Enter the room code. Add your name to play, or leave it blank to watch.</p>
+      <div class="join-form-grid">
+        <input type="text" id="join-code-input" class="viewer-code-input" placeholder="OTR-0000" maxlength="8" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')document.getElementById('join-name-input').focus()">
+        <input type="text" id="join-name-input" class="join-name-input" placeholder="Your name (optional)" maxlength="24" onkeydown="if(event.key==='Enter')joinGame()">
+        <button class="btn btn-blue" id="join-btn" onclick="joinGame()" style="grid-column:1/-1">Join</button>
       </div>
-      <div id="viewer-join-error"></div>
+      <div id="join-error" class="viewer-join-error"></div>
     </div>
   </div>
 </div>
 
-<!-- ── PLAYER SETUP SCREEN ── -->
+<!-- ── PLAYER SETUP SCREEN (fallback when Firebase unavailable) ── -->
 <div id="setup-screen" class="screen">
   <div class="win-panel" style="max-width:460px">
     <div class="win-titlebar">
@@ -108,6 +112,60 @@
       <div class="action-row">
         <button class="btn btn-ghost" onclick="addPlayerRow()">+ Add Player</button>
         <button class="btn btn-gold" id="start-btn" onclick="startGame()" disabled>Start Game</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOBBY SCREEN (GM waiting for players) ── -->
+<div id="lobby-screen" class="screen">
+  <div class="win-panel" style="max-width:520px">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">🎮</span>
+      <span class="win-titlebar-text">Game Lobby</span>
+    </div>
+    <div class="win-body">
+      <div class="lobby-code-wrap">
+        <div class="sublabel">Room Code &mdash; share with players</div>
+        <div id="lobby-code" class="lobby-code-display">OTR-0000</div>
+      </div>
+      <div id="lobby-player-list" class="lobby-player-list">
+        <div class="lobby-empty">Waiting for players to join&hellip;</div>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-gold" id="lobby-start-btn" onclick="startGameFromLobby()" disabled>&#9654; Start Game</button>
+        <button class="btn btn-dim" onclick="cancelLobby()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── WAITING SCREEN (player/viewer waiting for game to start) ── -->
+<div id="waiting-screen" class="screen">
+  <div class="win-panel" style="max-width:440px">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">⏳</span>
+      <span class="win-titlebar-text" id="waiting-title">Waiting</span>
+    </div>
+    <div class="win-body">
+      <p id="waiting-info">Waiting for the host to start&hellip;</p>
+      <div id="waiting-player-list" class="waiting-player-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PLAYER GAME SCREEN ── -->
+<div id="player-screen" class="screen">
+  <div class="win-panel" style="max-width:480px">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">🎯</span>
+      <span class="win-titlebar-text">Playing as <span id="player-screen-name"></span></span>
+    </div>
+    <div class="win-body">
+      <div id="player-scoreboard" class="player-scoreboard"></div>
+      <div id="buzzer-area">
+        <div id="buzzer-status" class="buzzer-status"></div>
+        <button id="buzz-btn" class="buzz-btn" onclick="pressBuzzer()">&#128276; BUZZ!</button>
       </div>
     </div>
   </div>
@@ -232,6 +290,8 @@
 <script src="js/fullscreen.js"></script>
 <script src="js/firebase.js"></script>
 <script src="js/sync.js"></script>
+<script src="js/lobby.js"></script>
+<script src="js/player.js"></script>
 <script src="js/save.js"></script>
 
 </body>
